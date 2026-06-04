@@ -897,6 +897,18 @@
           </label>
 
           <label>
+            Work style
+            <select id="workStyle">
+              <option value="I work a desk job" selected>Desk job</option>
+              <option value="I stand or walk for long hours">Standing or walking long hours</option>
+              <option value="I do light physical work">Light physical work</option>
+              <option value="I do shift work">Shift work</option>
+              <option value="I work from home">Work from home</option>
+              <option value="I am mostly resting at home">Mostly resting at home</option>
+            </select>
+          </label>
+
+          <label>
             Profile notes
             <textarea id="profileText"></textarea>
           </label>
@@ -1123,6 +1135,7 @@
         const weight = value("#weightKg");
         const activity = value("#activityLevel");
         const diet = value("#dietaryPreferences");
+        const workStyle = value("#workStyle");
         const conditions = selectedValues("#conditions");
         const allergies = csv("#allergies");
 
@@ -1138,7 +1151,7 @@
         if (conditions.length) parts.push(`conditions: ${conditions.map(readable).join(", ")}`);
         if (allergies.length) parts.push(`allergies: ${allergies.join(", ")}`);
 
-        document.querySelector("#profileText").value = `${parts.join(", ")}. I work a desk job.`;
+        document.querySelector("#profileText").value = `${parts.join(", ")}. ${workStyle}.`;
       }
 
       function payload() {
@@ -1154,6 +1167,7 @@
           weightKg: Number(document.querySelector("#weightKg").value),
           activityLevel: document.querySelector("#activityLevel").value,
           dietaryPreferences: document.querySelector("#dietaryPreferences").value,
+          workStyle: document.querySelector("#workStyle").value,
           conditions: selectedValues("#conditions"),
           allergies: csv("#allergies")
         };
@@ -1167,6 +1181,7 @@
         "#weightKg",
         "#activityLevel",
         "#dietaryPreferences",
+        "#workStyle",
         "#conditions",
         "#allergies"
       ].forEach((selector) => {
