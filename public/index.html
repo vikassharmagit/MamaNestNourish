@@ -756,7 +756,7 @@
         <div class="auth-card" id="authCard">
           <div class="status">Week-by-week pregnancy planning API demo</div>
           <div class="auth-row" id="authInputs">
-            <input id="authEmail" type="email" autocomplete="email" placeholder="Email" />
+            <input id="authIdentifier" type="text" autocomplete="username" placeholder="Email or phone (+91...)" />
             <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
             <button id="loginBtn" type="button">Log in</button>
             <button id="signupBtn" type="button">Sign up</button>
@@ -945,7 +945,7 @@
         } else if (loggedIn) {
           setAuthMessage("Signed in. You can generate a private plan.");
         } else {
-          setAuthMessage("Sign in or create an account to generate a plan.");
+          setAuthMessage("Sign in with email or phone number, or create an account to generate a plan.");
         }
       }
 
@@ -1136,7 +1136,7 @@
       document.querySelector("#signupBtn").addEventListener("click", async () => {
         try {
           await authRequest("/api/auth/signup", {
-            email: value("#authEmail"),
+            identifier: value("#authIdentifier"),
             password: value("#authPassword")
           });
           document.querySelector("#confirmRow").hidden = false;
@@ -1149,7 +1149,7 @@
       document.querySelector("#confirmBtn").addEventListener("click", async () => {
         try {
           await authRequest("/api/auth/confirm", {
-            email: value("#authEmail"),
+            identifier: value("#authIdentifier"),
             code: value("#confirmCode")
           });
           document.querySelector("#confirmRow").hidden = true;
@@ -1166,7 +1166,7 @@
       document.querySelector("#loginBtn").addEventListener("click", async () => {
         try {
           const data = await authRequest("/api/auth/login", {
-            email: value("#authEmail"),
+            identifier: value("#authIdentifier"),
             password: value("#authPassword")
           });
           authTokens = data.tokens;

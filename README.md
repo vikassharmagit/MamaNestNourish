@@ -59,7 +59,7 @@ $env:COGNITO_CLIENT_ID="your-app-client-id"
 npm start
 ```
 
-When these variables are present, `POST /api/plan/stream` requires an `Authorization: Bearer <idToken>` header. The app includes signup, confirmation, login, and logout UI backed by Cognito.
+When these variables are present, `POST /api/plan/stream` requires an `Authorization: Bearer <idToken>` header. The app includes signup, confirmation, login, and logout UI backed by Cognito. Configure the Cognito User Pool to allow email and phone-number sign-in aliases if both login methods are required.
 
 ## Safety
 

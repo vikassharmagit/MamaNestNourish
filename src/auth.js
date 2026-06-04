@@ -15,6 +15,26 @@ const JWKS_URL = ISSUER ? `${ISSUER}/.well-known/jwks.json` : "";
 const cognito = new CognitoIdentityProviderClient({ region: REGION });
 let jwksCache = null;
 
+function normalizeIdentifier(identifier = "") {
+  return String(identifier).trim();
+}
+
+function isPhoneIdentifier(identifier) {
+  return /^\+?[1-9]\d{7,14}$/.test(identifier.replace(/[\s().-]/g, ""));
+}
+
+function normalizePhone(identifier) {
+  const compact = identifier.replace(/[\s().-]/g, "");
+  return compact.startsWith("+") ? compact : `+${compact}`;
+}
+
+function userAttributeFor(identifier) {
+  if (isPhoneIdentifier(identifier)) {
+    return { Name: "phone_number", Value: normalizePhone(identifier) };
+  }
+  return { Name: "email", Value: identifier };
+}
+
 export function authConfig() {
   return {
     configured: Boolean(USER_POOL_ID && CLIENT_ID),
@@ -32,34 +52,37 @@ function assertConfigured() {
   }
 }
 
-export async function signUp({ email, password }) {
+export async function signUp({ identifier, email, password }) {
   assertConfigured();
+  const username = normalizeIdentifier(identifier || email);
   await cognito.send(new SignUpCommand({
     ClientId: CLIENT_ID,
-    Username: email,
+    Username: username,
     Password: password,
-    UserAttributes: [{ Name: "email", Value: email }]
+    UserAttributes: [userAttributeFor(username)]
   }));
-  return { ok: true, message: "Check your email for the confirmation code." };
+  return { ok: true, message: "Check your email or phone for the confirmation code." };
 }
 
-export async function confirmSignUp({ email, code }) {
+export async function confirmSignUp({ identifier, email, code }) {
   assertConfigured();
+  const username = normalizeIdentifier(identifier || email);
   await cognito.send(new ConfirmSignUpCommand({
     ClientId: CLIENT_ID,
-    Username: email,
+    Username: username,
     ConfirmationCode: code
   }));
   return { ok: true };
 }
 
-export async function login({ email, password }) {
+export async function login({ identifier, email, password }) {
   assertConfigured();
+  const username = normalizeIdentifier(identifier || email);
   const response = await cognito.send(new InitiateAuthCommand({
     AuthFlow: "USER_PASSWORD_AUTH",
     ClientId: CLIENT_ID,
     AuthParameters: {
-      USERNAME: email,
+      USERNAME: username,
       PASSWORD: password
     }
   }));
