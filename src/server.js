@@ -2,7 +2,7 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { authConfig, confirmSignUp, login, requireAuth, signUp } from "./auth.js";
+import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp } from "./auth.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
 
 const PORT = Number(process.env.PORT || 3000);
@@ -94,6 +94,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/auth/confirm") {
       writeJson(res, 200, await confirmSignUp(await readJson(req)));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/auth/resend") {
+      writeJson(res, 200, await resendConfirmationCode(await readJson(req)));
       return;
     }
 

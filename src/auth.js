@@ -2,6 +2,7 @@ import {
   CognitoIdentityProviderClient,
   ConfirmSignUpCommand,
   InitiateAuthCommand,
+  ResendConfirmationCodeCommand,
   SignUpCommand
 } from "@aws-sdk/client-cognito-identity-provider";
 import { createPublicKey, verify as verifySignature } from "node:crypto";
@@ -35,6 +36,19 @@ function userAttributeFor(identifier) {
   return { Name: "email", Value: identifier };
 }
 
+function assertCredentials(username, password) {
+  if (!username) {
+    const error = new Error("Enter an email address or phone number.");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!password) {
+    const error = new Error("Enter a password.");
+    error.statusCode = 400;
+    throw error;
+  }
+}
+
 export function authConfig() {
   return {
     configured: Boolean(USER_POOL_ID && CLIENT_ID),
@@ -55,6 +69,7 @@ function assertConfigured() {
 export async function signUp({ identifier, email, password }) {
   assertConfigured();
   const username = normalizeIdentifier(identifier || email);
+  assertCredentials(username, password);
   await cognito.send(new SignUpCommand({
     ClientId: CLIENT_ID,
     Username: username,
@@ -67,6 +82,16 @@ export async function signUp({ identifier, email, password }) {
 export async function confirmSignUp({ identifier, email, code }) {
   assertConfigured();
   const username = normalizeIdentifier(identifier || email);
+  if (!username) {
+    const error = new Error("Enter the email address or phone number used for signup.");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!String(code || "").trim()) {
+    const error = new Error("Enter the confirmation code.");
+    error.statusCode = 400;
+    throw error;
+  }
   await cognito.send(new ConfirmSignUpCommand({
     ClientId: CLIENT_ID,
     Username: username,
@@ -75,9 +100,25 @@ export async function confirmSignUp({ identifier, email, code }) {
   return { ok: true };
 }
 
+export async function resendConfirmationCode({ identifier, email }) {
+  assertConfigured();
+  const username = normalizeIdentifier(identifier || email);
+  if (!username) {
+    const error = new Error("Enter the email address or phone number used for signup.");
+    error.statusCode = 400;
+    throw error;
+  }
+  await cognito.send(new ResendConfirmationCodeCommand({
+    ClientId: CLIENT_ID,
+    Username: username
+  }));
+  return { ok: true, message: "A new confirmation code was sent." };
+}
+
 export async function login({ identifier, email, password }) {
   assertConfigured();
   const username = normalizeIdentifier(identifier || email);
+  assertCredentials(username, password);
   const response = await cognito.send(new InitiateAuthCommand({
     AuthFlow: "USER_PASSWORD_AUTH",
     ClientId: CLIENT_ID,

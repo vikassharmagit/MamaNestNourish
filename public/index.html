@@ -138,6 +138,10 @@
         gap: 8px;
       }
 
+      .auth-row.confirm {
+        grid-template-columns: minmax(150px, 1fr) auto auto auto;
+      }
+
       .auth-row input {
         min-height: 34px;
         padding: 7px 9px;
@@ -778,10 +782,10 @@
             <button id="loginBtn" type="button">Log in</button>
             <button id="signupBtn" type="button">Sign up</button>
           </div>
-          <div class="auth-row" id="confirmRow" hidden>
+          <div class="auth-row confirm" id="confirmRow" hidden>
             <input id="confirmCode" inputmode="numeric" placeholder="Confirmation code" />
-            <span></span>
             <button id="confirmBtn" type="button">Confirm</button>
+            <button id="resendCodeBtn" type="button">Resend</button>
             <button id="cancelConfirmBtn" type="button">Cancel</button>
           </div>
           <div class="auth-actions">
@@ -941,6 +945,7 @@
       const submitBtn = document.querySelector("#submitBtn");
       let authConfigured = false;
       let authTokens = JSON.parse(localStorage.getItem("mypregladyTokens") || "null");
+      let pendingSignupIdentifier = "";
 
       function authHeader() {
         return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
@@ -950,12 +955,34 @@
         document.querySelector("#authMessage").textContent = message;
       }
 
+      function setAuthBusy(isBusy) {
+        ["#loginBtn", "#signupBtn", "#confirmBtn", "#resendCodeBtn", "#cancelConfirmBtn"].forEach((selector) => {
+          const element = document.querySelector(selector);
+          if (element) element.disabled = isBusy;
+        });
+      }
+
+      function showSignupConfirmation(identifier) {
+        pendingSignupIdentifier = identifier;
+        document.querySelector("#authInputs").hidden = true;
+        document.querySelector("#confirmRow").hidden = false;
+        document.querySelector("#confirmCode").focus();
+      }
+
+      function hideSignupConfirmation() {
+        pendingSignupIdentifier = "";
+        document.querySelector("#confirmCode").value = "";
+        document.querySelector("#confirmRow").hidden = true;
+        document.querySelector("#authInputs").hidden = !authConfigured || Boolean(authTokens?.IdToken);
+      }
+
       function updateAuthUi() {
         const loggedIn = Boolean(authTokens?.IdToken);
         const appUnlocked = authConfigured && loggedIn;
         document.body.classList.toggle("auth-locked", !appUnlocked);
         document.querySelector("#authCard").hidden = appUnlocked;
         document.querySelector("#authInputs").hidden = !authConfigured || loggedIn;
+        if (loggedIn || !authConfigured) document.querySelector("#confirmRow").hidden = true;
         document.querySelector("#logoutBtn").hidden = !loggedIn;
         submitBtn.disabled = !appUnlocked;
         if (!authConfigured) {
@@ -1152,37 +1179,63 @@
       loadAuthConfig();
 
       document.querySelector("#signupBtn").addEventListener("click", async () => {
+        const identifier = value("#authIdentifier");
+        const password = value("#authPassword");
         try {
+          if (!identifier) throw new Error("Enter an email address or phone number.");
+          if (!password) throw new Error("Enter a password.");
+          setAuthBusy(true);
           await authRequest("/api/auth/signup", {
-            identifier: value("#authIdentifier"),
-            password: value("#authPassword")
+            identifier,
+            password
           });
-          document.querySelector("#confirmRow").hidden = false;
-          setAuthMessage("Check your email and enter the confirmation code.");
+          showSignupConfirmation(identifier);
+          setAuthMessage(`Account created for ${identifier}. Enter the confirmation code to finish signup.`);
         } catch (error) {
           setAuthMessage(error.message);
+        } finally {
+          setAuthBusy(false);
         }
       });
 
       document.querySelector("#confirmBtn").addEventListener("click", async () => {
         try {
+          setAuthBusy(true);
           await authRequest("/api/auth/confirm", {
-            identifier: value("#authIdentifier"),
+            identifier: pendingSignupIdentifier || value("#authIdentifier"),
             code: value("#confirmCode")
           });
-          document.querySelector("#confirmRow").hidden = true;
+          hideSignupConfirmation();
           setAuthMessage("Account confirmed. You can log in now.");
         } catch (error) {
           setAuthMessage(error.message);
+        } finally {
+          setAuthBusy(false);
+        }
+      });
+
+      document.querySelector("#resendCodeBtn").addEventListener("click", async () => {
+        try {
+          setAuthBusy(true);
+          await authRequest("/api/auth/resend", {
+            identifier: pendingSignupIdentifier || value("#authIdentifier")
+          });
+          setAuthMessage("A new confirmation code was sent.");
+        } catch (error) {
+          setAuthMessage(error.message);
+        } finally {
+          setAuthBusy(false);
         }
       });
 
       document.querySelector("#cancelConfirmBtn").addEventListener("click", () => {
-        document.querySelector("#confirmRow").hidden = true;
+        hideSignupConfirmation();
+        setAuthMessage("Sign in with email or phone number, or create an account to generate a plan.");
       });
 
       document.querySelector("#loginBtn").addEventListener("click", async () => {
         try {
+          setAuthBusy(true);
           const data = await authRequest("/api/auth/login", {
             identifier: value("#authIdentifier"),
             password: value("#authPassword")
@@ -1192,6 +1245,8 @@
           updateAuthUi();
         } catch (error) {
           setAuthMessage(error.message);
+        } finally {
+          setAuthBusy(false);
         }
       });
 
