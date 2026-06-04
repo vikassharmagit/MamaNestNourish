@@ -1,4 +1,5 @@
 import {
+  AdminConfirmSignUpCommand,
   CognitoIdentityProviderClient,
   ConfirmSignUpCommand,
   InitiateAuthCommand,
@@ -82,12 +83,35 @@ export async function signUp({ identifier, email, password }) {
   assertConfigured();
   const username = cognitoUsernameFor(identifier || email);
   assertCredentials(username, password);
+  const isPhoneSignup = isPhoneIdentifier(username);
   await sendCognito(new SignUpCommand({
     ClientId: CLIENT_ID,
     Username: username,
     Password: password,
     UserAttributes: [userAttributeFor(username)]
   }));
+
+  if (isPhoneSignup) {
+    await sendCognito(new AdminConfirmSignUpCommand({
+      UserPoolId: USER_POOL_ID,
+      Username: username
+    }));
+    const response = await sendCognito(new InitiateAuthCommand({
+      AuthFlow: "USER_PASSWORD_AUTH",
+      ClientId: CLIENT_ID,
+      AuthParameters: {
+        USERNAME: username,
+        PASSWORD: password
+      }
+    }));
+    return {
+      ok: true,
+      confirmed: true,
+      tokens: response.AuthenticationResult,
+      message: "Phone account created. You are signed in."
+    };
+  }
+
   return { ok: true, message: "Check your email or phone for the confirmation code." };
 }
 

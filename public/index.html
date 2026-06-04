@@ -1185,10 +1185,17 @@
           if (!identifier) throw new Error("Enter an email address or phone number.");
           if (!password) throw new Error("Enter a password.");
           setAuthBusy(true);
-          await authRequest("/api/auth/signup", {
+          const data = await authRequest("/api/auth/signup", {
             identifier,
             password
           });
+          if (data.tokens?.IdToken) {
+            authTokens = data.tokens;
+            localStorage.setItem("mypregladyTokens", JSON.stringify(authTokens));
+            hideSignupConfirmation();
+            updateAuthUi();
+            return;
+          }
           showSignupConfirmation(identifier);
           setAuthMessage(`Account created for ${identifier}. Enter the confirmation code to finish signup.`);
         } catch (error) {
