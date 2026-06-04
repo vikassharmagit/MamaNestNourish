@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyPregLeady</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #263238;
+        --muted: #617179;
+        --line: #d9e3ea;
+        --surface: #ffffff;
+        --page: #f4f7fb;
+        --primary: #3e7cb1;
+        --accent: #82b366;
+        --accent-dark: #4f7f38;
+        --highlight: #f2c66d;
+        --warn: #a95d10;
+        --danger: #a73535;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, #eaf2fa 0, #f7fafc 260px, var(--page) 100%);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      header {
+        border-bottom: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+      }
+
+      .topbar,
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 68px;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 750;
+        font-size: 20px;
+      }
+
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: #dff1ed;
+        box-shadow: inset 0 0 0 1px #c7d9e8;
+        color: var(--primary);
+      }
+
+      .status {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+        gap: 20px;
+        padding: 22px 0;
+      }
+
+      section {
+        min-width: 0;
+      }
+
+      .panel,
+      .result-panel {
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .panel {
+        padding: 18px;
+        box-shadow: 0 18px 44px rgba(29, 64, 58, 0.08);
+      }
+
+      .result-panel {
+        box-shadow: 0 18px 44px rgba(29, 64, 58, 0.08);
+      }
+
+      .panel::before,
+      .result-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 8px;
+        background: linear-gradient(90deg, var(--primary), var(--accent), var(--highlight));
+      }
+
+      .panel::after {
+        content: "";
+        position: absolute;
+        right: -80px;
+        top: 40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(130, 179, 102, 0.16), rgba(130, 179, 102, 0));
+        pointer-events: none;
+      }
+
+      .panel > *,
+      .result-panel > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        font-size: 24px;
+        line-height: 1.2;
+      }
+
+      h2 {
+        font-size: 17px;
+      }
+
+      h3 {
+        font-size: 15px;
+      }
+
+      p {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      form {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        color: #344541;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid #cbd8d4;
+        border-radius: 7px;
+        padding: 10px 11px;
+        color: var(--ink);
+        background: #ffffff;
+        font: inherit;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 0;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(62, 124, 177, 0.16);
+      }
+
+      textarea {
+        min-height: 112px;
+        resize: vertical;
+      }
+
+      select[multiple] {
+        min-height: 154px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .profile-grid {
+        align-items: start;
+      }
+
+      .profile-grid .age-field:last-child {
+        grid-column: span 2;
+      }
+
+      .date-field,
+      .age-field {
+        min-height: 78px;
+      }
+
+      .calculated-field input {
+        color: var(--accent-dark);
+        background: #edf5fb;
+        border-color: #b8d2e8;
+        font-weight: 750;
+      }
+
+      .height-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 92px;
+        gap: 8px;
+      }
+
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 0;
+        border-radius: 7px;
+        padding: 0 16px;
+        color: #fff;
+        background: var(--primary);
+        font: inherit;
+        font-weight: 750;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(62, 124, 177, 0.22);
+      }
+
+      button:hover {
+        background: #2f6693;
+      }
+
+      button:disabled {
+        cursor: progress;
+        opacity: 0.7;
+      }
+
+      .notice {
+        display: grid;
+        grid-template-columns: 34px 1fr;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 12px;
+        border: 1px solid #efd89b;
+        border-radius: 8px;
+        background: #fff9e8;
+        color: #5e431c;
+        font-size: 13px;
+        line-height: 1.45;
+        box-shadow: 0 10px 22px rgba(242, 198, 109, 0.18);
+      }
+
+      .notice strong {
+        display: block;
+        margin-bottom: 2px;
+        color: #4b3515;
+      }
+
+      .visual {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: #fff0bd;
+      }
+
+      .result-panel {
+        min-height: calc(100vh - 112px);
+        overflow: hidden;
+      }
+
+      .result-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+        background:
+          linear-gradient(135deg, rgba(62, 124, 177, 0.1), rgba(130, 179, 102, 0.08)),
+          #fbfdff;
+      }
+
+      .progress {
+        width: 170px;
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e7efed;
+      }
+
+      .bar {
+        width: 0%;
+        height: 100%;
+        background: var(--accent);
+        transition: width 180ms ease;
+      }
+
+      .content {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(244, 247, 251, 0.72)),
+          radial-gradient(circle at 100% 0, rgba(242, 198, 109, 0.12), rgba(242, 198, 109, 0) 260px);
+      }
+
+      .empty {
+        display: grid;
+        place-items: center;
+        min-height: 420px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty svg {
+        width: 160px;
+        height: 120px;
+        margin-bottom: 14px;
+      }
+
+      .event-list {
+        display: grid;
+        gap: 8px;
+        max-height: 180px;
+        overflow: auto;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdfc;
+        font-size: 13px;
+      }
+
+      .event {
+        color: var(--muted);
+      }
+
+      .alert {
+        border: 1px solid #f2c66d;
+        border-radius: 8px;
+        padding: 12px;
+        background: #fff9e8;
+        color: var(--warn);
+        font-weight: 650;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 10px;
+      }
+
+      .metric,
+      .day,
+      .checklist,
+      .option-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdfc;
+        padding: 12px;
+      }
+
+      .day,
+      .option-card,
+      .checklist {
+        box-shadow: 0 10px 24px rgba(35, 70, 63, 0.05);
+      }
+
+      .option-card {
+        border-top: 4px solid var(--primary);
+        background:
+          linear-gradient(135deg, rgba(62, 124, 177, 0.12), rgba(130, 179, 102, 0.1) 48%, #ffffff 48%);
+      }
+
+      .option-card:nth-child(2n) {
+        border-top-color: var(--accent);
+        background:
+          linear-gradient(135deg, rgba(130, 179, 102, 0.14), rgba(242, 198, 109, 0.14) 48%, #ffffff 48%);
+      }
+
+      .option-card:nth-child(3n) {
+        border-top-color: var(--highlight);
+        background:
+          linear-gradient(135deg, rgba(242, 198, 109, 0.18), rgba(62, 124, 177, 0.1) 48%, #ffffff 48%);
+      }
+
+      .micro-card {
+        border: 1px solid #cbdce8;
+        border-left: 6px solid var(--primary);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 16px;
+        box-shadow: 0 12px 26px rgba(35, 70, 63, 0.06);
+      }
+
+      .focus-card {
+        border: 1px solid #d6e4d0;
+        border-left: 6px solid var(--accent);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 16px;
+        box-shadow: 0 12px 26px rgba(35, 70, 63, 0.06);
+      }
+
+      .focus-card ul {
+        columns: 2;
+        column-gap: 24px;
+      }
+
+      .micro-card p {
+        color: #405661;
+      }
+
+      .micro-card ul {
+        columns: 2;
+        column-gap: 24px;
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 5px;
+        font-size: 20px;
+      }
+
+      .metric {
+        background:
+          linear-gradient(180deg, #edf6ff, #e7f1fb);
+      }
+
+      .days {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .day p {
+        font-size: 13px;
+      }
+
+      .meal-list,
+      .option-grid {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .meal-row {
+        display: grid;
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        padding-top: 8px;
+        border-top: 1px solid #e4ece9;
+        font-size: 13px;
+      }
+
+      .meal-row:first-child {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .meal-row span {
+        color: var(--primary);
+        font-weight: 750;
+      }
+
+      .option-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .option-card ul {
+        font-size: 13px;
+      }
+
+      .exercise-box {
+        margin-top: 8px;
+        padding: 8px 10px;
+        border-radius: 8px;
+        background: #edf5fb;
+        border: 1px solid #c7dbea;
+      }
+
+      .exercise-box h3 {
+        font-size: 13px;
+      }
+
+      .exercise-box p {
+        color: #405661;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .exercise-box ul {
+        margin-top: 6px;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      .baby-card {
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdfc;
+        padding: 10px;
+        box-shadow: 0 12px 26px rgba(35, 70, 63, 0.06);
+      }
+
+      .baby-visual {
+        width: 88px;
+        aspect-ratio: 1;
+      }
+
+      .baby-card h3 {
+        font-size: 14px;
+      }
+
+      .baby-card p {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .micro-details {
+        border: 0;
+        padding: 0;
+      }
+
+      .micro-details summary {
+        cursor: pointer;
+        color: var(--ink);
+        font-weight: 750;
+        list-style-position: outside;
+      }
+
+      .micro-details summary::marker {
+        color: var(--primary);
+      }
+
+      .field-note {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 1.35;
+      }
+
+      ul {
+        margin: 8px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      pre {
+        overflow: auto;
+        max-height: 280px;
+        margin: 0;
+        padding: 12px;
+        border-radius: 8px;
+        background: #17201e;
+        color: #e8f5f1;
+        font-size: 12px;
+      }
+
+      @media (max-width: 900px) {
+        main,
+        .summary-grid,
+        .days,
+        .option-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .result-panel {
+          min-height: 520px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 14px 0;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .profile-grid .age-field:last-child {
+          grid-column: auto;
+        }
+
+        .baby-card {
+          grid-template-columns: 1fr;
+        }
+
+        .micro-card ul {
+          columns: 1;
+        }
+
+        .focus-card ul {
+          columns: 1;
+        }
+
+        .result-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .progress {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 21c4.2-2.8 7-6 7-10.2A6.8 6.8 0 0 0 12 4a6.8 6.8 0 0 0-7 6.8C5 15 7.8 18.2 12 21Z" fill="currentColor" opacity=".18" />
+              <path d="M8.3 11.2c1.9 3.8 5.5 4 7.4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M12 8.7v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </div>
+          <span>MyPregLeady</span>
+        </div>
+        <div class="status">Week-by-week pregnancy planning API demo</div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <h1>Build a safe weekly plan</h1>
+        <p>Enter the essentials and generate a structured plan with streamed progress, safety flags, targets, meals, hydration, and exercise guidance.</p>
+
+        <div class="notice">
+          <div class="visual" aria-hidden="true">!</div>
+          <div>
+            <strong>Medical disclaimer</strong>
+            Educational guidance only; not a substitute for professional medical advice. For urgent symptoms or higher-risk findings, contact a qualified healthcare provider immediately.
+          </div>
+        </div>
+
+        <form id="planForm">
+          <div class="grid profile-grid">
+            <label class="date-field">
+              Last period date
+              <input id="lastPeriodDate" type="date" />
+              <span id="gestationalAgeNote" class="field-note">Select the first day of the last period.</span>
+            </label>
+            <label class="date-field calculated-field">
+              Week and day
+              <input id="gestationalAgeDisplay" value="0 weeks 0 days" readonly />
+              <input id="gestationalWeek" type="hidden" value="0" />
+              <input id="gestationalDay" type="hidden" value="0" />
+            </label>
+            <label class="age-field">
+              Age
+              <input id="age" type="number" min="12" max="60" value="29" />
+            </label>
+            <label class="age-field">
+              Height cm
+              <div class="height-row">
+                <input id="heightValue" type="number" min="1" step="0.1" value="165" />
+                <select id="heightUnit" aria-label="Height unit">
+                  <option value="cm" selected>cm</option>
+                  <option value="ft">ft/in</option>
+                </select>
+              </div>
+              <span id="heightNote" class="field-note">165 cm</span>
+              <input id="heightCm" type="hidden" value="165" />
+            </label>
+            <label class="age-field">
+              Weight kg
+              <input id="weightKg" type="number" min="30" max="220" value="68" />
+            </label>
+          </div>
+
+          <div class="grid">
+            <label>
+              Activity
+              <select id="activityLevel">
+                <option value="sedentary">Sedentary</option>
+                <option value="light">Light</option>
+                <option value="moderate" selected>Moderate</option>
+                <option value="active">Active</option>
+              </select>
+            </label>
+            <label>
+              Diet
+              <select id="dietaryPreferences">
+                <option value="vegetarian" selected>Vegetarian</option>
+                <option value="non_vegetarian">Non-vegetarian</option>
+                <option value="eggitarian">Eggitarian</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Conditions
+            <select id="conditions" multiple>
+              <option value="none" selected>No known condition</option>
+              <option value="gestational_hypertension">Gestational hypertension</option>
+              <option value="chronic_hypertension">Chronic hypertension</option>
+              <option value="preeclampsia_risk">Preeclampsia risk</option>
+              <option value="gestational_diabetes">Gestational diabetes</option>
+              <option value="type_1_diabetes">Type 1 diabetes</option>
+              <option value="type_2_diabetes">Type 2 diabetes</option>
+              <option value="anemia">Anemia</option>
+              <option value="thyroid_disorder">Thyroid disorder</option>
+              <option value="asthma">Asthma</option>
+              <option value="placenta_previa">Placenta previa</option>
+              <option value="previous_preterm_birth">Previous preterm birth</option>
+              <option value="multiple_pregnancy">Multiple pregnancy</option>
+              <option value="obesity">Obesity</option>
+              <option value="underweight">Underweight</option>
+              <option value="hyperemesis_gravidarum">Hyperemesis gravidarum</option>
+              <option value="pelvic_girdle_pain">Pelvic girdle pain</option>
+              <option value="back_pain">Back pain</option>
+              <option value="history_of_miscarriage">History of miscarriage</option>
+              <option value="ivf_pregnancy">IVF pregnancy</option>
+            </select>
+          </label>
+
+          <label>
+            Allergies
+            <input id="allergies" value="none" placeholder="e.g., peanuts" />
+            <span class="field-note">Example: peanuts. Leave as none if there are no known allergies.</span>
+          </label>
+
+          <label>
+            Profile notes
+            <textarea id="profileText"></textarea>
+          </label>
+
+          <button id="submitBtn" type="submit">Generate plan</button>
+        </form>
+      </section>
+
+      <section class="result-panel">
+        <div class="result-head">
+          <div>
+            <h2>Plan output</h2>
+            <p id="runState">Ready to generate.</p>
+          </div>
+          <div class="progress" aria-label="Generation progress">
+            <div id="progressBar" class="bar"></div>
+          </div>
+        </div>
+        <div id="output" class="content">
+          <div class="empty">
+            <div>
+              <svg viewBox="0 0 220 150" role="img" aria-label="Calendar and care illustration">
+                <rect x="24" y="22" width="126" height="104" rx="8" fill="#ffffff" stroke="#bfd4cf" stroke-width="3" />
+                <path d="M24 46h126" stroke="#bfd4cf" stroke-width="3" />
+                <rect x="46" y="66" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <rect x="76" y="66" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <rect x="106" y="66" width="18" height="16" rx="3" fill="#3E7CB1" />
+                <rect x="46" y="94" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <rect x="76" y="94" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <path d="M170 112c16-12 26-26 26-44a24 24 0 0 0-48 0c0 18 10 32 22 44Z" fill="#f4d2a3" />
+                <path d="M158 70c7 12 18 13 25 0" stroke="#8f5a18" stroke-width="4" stroke-linecap="round" />
+              </svg>
+              <h3>No plan generated yet</h3>
+              <p>Submit the form to see streamed progress and the weekly plan.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.querySelector("#planForm");
+      const output = document.querySelector("#output");
+      const runState = document.querySelector("#runState");
+      const progressBar = document.querySelector("#progressBar");
+      const submitBtn = document.querySelector("#submitBtn");
+
+      function csv(id) {
+        return document
+          .querySelector(id)
+          .value.split(",")
+          .map((item) => item.trim())
+          .filter((item) => item && item.toLowerCase() !== "none");
+      }
+
+      function selectedValues(id) {
+        return Array.from(document.querySelector(id).selectedOptions)
+          .map((option) => option.value)
+          .filter((item) => item && item !== "none");
+      }
+
+      function readable(value) {
+        return value.replaceAll("_", " ");
+      }
+
+      function updateHeightCm() {
+        const rawHeight = Number(value("#heightValue"));
+        const unit = value("#heightUnit");
+        let heightCm = rawHeight;
+
+        if (unit === "ft") {
+          const feet = Math.floor(rawHeight);
+          const inches = Math.round((rawHeight - feet) * 10);
+          heightCm = feet * 30.48 + inches * 2.54;
+          document.querySelector("#heightNote").textContent = `${feet} ft ${inches} in = ${Math.round(heightCm)} cm`;
+        } else {
+          document.querySelector("#heightNote").textContent = `${rawHeight || 0} cm`;
+        }
+
+        document.querySelector("#heightCm").value = heightCm ? Math.round(heightCm) : "";
+      }
+
+      function syncConditionSelection() {
+        const select = document.querySelector("#conditions");
+        const selected = Array.from(select.selectedOptions).map((option) => option.value);
+        if (selected.includes("none") && selected.length > 1) {
+          Array.from(select.options).forEach((option) => {
+            option.selected = option.value !== "none" && selected.includes(option.value);
+          });
+        }
+        if (!Array.from(select.selectedOptions).length) {
+          select.querySelector('option[value="none"]').selected = true;
+        }
+      }
+
+      function value(id) {
+        return document.querySelector(id).value.trim();
+      }
+
+      function dateFromInput(inputValue) {
+        if (!inputValue) return null;
+        const [year, month, day] = inputValue.split("-").map(Number);
+        if (!year || !month || !day) return null;
+        return new Date(year, month - 1, day);
+      }
+
+      function toDateInputValue(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function addDays(date, days) {
+        const copy = new Date(date);
+        copy.setDate(copy.getDate() + days);
+        return copy;
+      }
+
+      function calculateGestationalAge() {
+        const lastPeriodDate = dateFromInput(value("#lastPeriodDate"));
+        const today = new Date();
+        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+        if (!lastPeriodDate || lastPeriodDate > todayMidnight) {
+          document.querySelector("#gestationalAgeNote").textContent = "Select a valid past last period date.";
+          return null;
+        }
+
+        const diffDays = Math.floor((todayMidnight - lastPeriodDate) / 86400000);
+        const weeks = Math.floor(diffDays / 7);
+        const days = diffDays % 7;
+        const dueDate = addDays(lastPeriodDate, 280);
+
+        document.querySelector("#gestationalWeek").value = Math.min(42, Math.max(0, weeks));
+        document.querySelector("#gestationalDay").value = days;
+        document.querySelector("#gestationalAgeDisplay").value = `${weeks} weeks ${days} days`;
+        document.querySelector("#gestationalAgeNote").textContent =
+          `Calculated gestational age: ${weeks} weeks ${days} days. Estimated due date: ${toDateInputValue(dueDate)}.`;
+
+        return { weeks, days, dueDate: toDateInputValue(dueDate) };
+      }
+
+      function updateProfileNotes() {
+        updateHeightCm();
+        syncConditionSelection();
+        const gestationalAge = calculateGestationalAge();
+        const week = value("#gestationalWeek");
+        const day = value("#gestationalDay");
+        const age = value("#age");
+        const height = value("#heightCm");
+        const weight = value("#weightKg");
+        const activity = value("#activityLevel");
+        const diet = value("#dietaryPreferences");
+        const conditions = selectedValues("#conditions");
+        const allergies = csv("#allergies");
+
+        const parts = [];
+        if (age) parts.push(`I am ${age}`);
+        if (week) parts.push(`${week} weeks ${day || 0} days pregnant`);
+        if (value("#lastPeriodDate")) parts.push(`last period date ${value("#lastPeriodDate")}`);
+        if (gestationalAge?.dueDate) parts.push(`estimated due date ${gestationalAge.dueDate}`);
+        if (diet) parts.push(readable(diet));
+        if (height) parts.push(`${height} cm tall`);
+        if (weight) parts.push(`${weight} kg`);
+        if (activity) parts.push(`${activity} activity`);
+        if (conditions.length) parts.push(`conditions: ${conditions.map(readable).join(", ")}`);
+        if (allergies.length) parts.push(`allergies: ${allergies.join(", ")}`);
+
+        document.querySelector("#profileText").value = `${parts.join(", ")}. I work a desk job.`;
+      }
+
+      function payload() {
+        const gestationalAge = calculateGestationalAge();
+        return {
+          profileText: document.querySelector("#profileText").value,
+          lastPeriodDate: document.querySelector("#lastPeriodDate").value,
+          gestationalWeek: Number(document.querySelector("#gestationalWeek").value),
+          gestationalDay: Number(document.querySelector("#gestationalDay").value),
+          expectedDeliveryDate: gestationalAge?.dueDate ?? null,
+          age: Number(document.querySelector("#age").value),
+          heightCm: Number(document.querySelector("#heightCm").value),
+          weightKg: Number(document.querySelector("#weightKg").value),
+          activityLevel: document.querySelector("#activityLevel").value,
+          dietaryPreferences: document.querySelector("#dietaryPreferences").value,
+          conditions: selectedValues("#conditions"),
+          allergies: csv("#allergies")
+        };
+      }
+
+      [
+        "#lastPeriodDate",
+        "#age",
+        "#heightValue",
+        "#heightUnit",
+        "#weightKg",
+        "#activityLevel",
+        "#dietaryPreferences",
+        "#conditions",
+        "#allergies"
+      ].forEach((selector) => {
+        document.querySelector(selector).addEventListener("input", updateProfileNotes);
+        document.querySelector(selector).addEventListener("change", updateProfileNotes);
+      });
+
+      document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
+      updateProfileNotes();
+
+      function eventRow(event) {
+        const message = event.message || event.summary || event.delta || `${event.tool || event.type} completed`;
+        return `<div class="event"><strong>${event.type}</strong> ${message}</div>`;
+      }
+
+      function babySizeCard(size) {
+        const radius = Math.min(58, Math.max(14, 12 + Number(size.week || 0)));
+        return `
+          <div class="baby-card">
+            <svg class="baby-visual" viewBox="0 0 160 160" role="img" aria-label="Baby size comparison">
+              <circle cx="80" cy="80" r="70" fill="#edf5fb" />
+              <ellipse cx="80" cy="84" rx="${radius}" ry="${Math.max(12, radius * 0.76)}" fill="${size.color || "#86b84f"}" opacity="0.95" />
+              <path d="M58 68c9-15 33-15 44 0" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.75" />
+              <circle cx="63" cy="82" r="4" fill="#fff" opacity="0.9" />
+              <circle cx="97" cy="82" r="4" fill="#fff" opacity="0.9" />
+              <path d="M64 104c11 8 25 8 36 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.9" />
+            </svg>
+            <div>
+              <h3>Baby size this week</h3>
+              <p><strong>About the size of a ${size.comparison}</strong></p>
+              <p>Approx. ${size.lengthCm} cm and ${size.weightG} g at week ${size.week}. ${size.note}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderDone(done, events) {
+        const data = done.output;
+        if (!data.targets) {
+          output.innerHTML = `
+            <div class="alert">${data.disclaimer}</div>
+            <div class="checklist">
+              <h3>Follow-up questions</h3>
+              <ul>${data.followUpQuestions.map((q) => `<li>${q}</li>`).join("")}</ul>
+            </div>
+            <div class="event-list">${events.map(eventRow).join("")}</div>
+          `;
+          return;
+        }
+
+        const days = data.weeklyPlan.map(({ dayIndex, dailyPlan }) => {
+          const exercise = dailyPlan.exercise[0];
+          const meals = dailyPlan.meals.map((meal) => `
+            <div class="meal-row">
+              <span>${meal.time}</span>
+              <div>
+                <strong>${meal.name}</strong><br />
+                ${meal.calories} kcal, ${meal.proteinG}g protein. ${meal.portionNotes}
+              </div>
+            </div>
+          `);
+          const snacks = dailyPlan.snacks.map((snack) => `${snack.time} ${snack.name}`).join("; ");
+          const exerciseSteps = exercise.steps || [];
+          return `
+            <article class="day">
+              <h3>Day ${dayIndex}</h3>
+              <div class="meal-list">${meals.join("")}</div>
+              <p><strong>Snacks:</strong> ${snacks}</p>
+              <div class="exercise-box">
+                <h3>${exercise.time} Recommended exercise</h3>
+                <p><strong>${exercise.activity}</strong>, ${exercise.durationMin} min, ${exercise.intensity}</p>
+                <ul>${exerciseSteps.map((step) => `<li>${step}</li>`).join("")}</ul>
+                <p><strong>Why:</strong> ${exercise.benefit}</p>
+              </div>
+            </article>
+          `;
+        });
+
+        const options = data.weeklyPlan[0].dailyPlan.optionBank;
+        const optionCards = [
+          ["Breakfast options", options.breakfast],
+          ["Lunch options", options.lunch],
+          ["Dinner options", options.dinner]
+        ].map(([title, items]) => `
+          <div class="option-card">
+            <h3>${title}</h3>
+            <ul>${items.map((item) => `<li>${item}</li>`).join("")}</ul>
+          </div>
+        `);
+        const focusCard = `
+          <div class="focus-card">
+            <h3>Healthy focus</h3>
+            <ul>${options.healthyFocus.map((item) => `<li>${item}</li>`).join("")}</ul>
+          </div>
+        `;
+        const micro = data.micronutrientRecommendations;
+        const microCard = micro ? `
+          <div class="micro-card">
+            <details class="micro-details">
+              <summary>${micro.title}</summary>
+              <p>${micro.summary}</p>
+              <ul>${micro.items.map((item) => `<li>${item}</li>`).join("")}</ul>
+            </details>
+          </div>
+        ` : "";
+        const nutritionCards = (data.nutritionRecommendations || []).map((group) => `
+          <div class="option-card">
+            <h3>${group.title}</h3>
+            <ul>${group.items.map((item) => `<li>${item}</li>`).join("")}</ul>
+          </div>
+        `);
+
+        output.innerHTML = `
+          ${babySizeCard(data.babySize)}
+          <div class="summary-grid">
+            <div class="metric"><span>Gestational age</span><strong>${data.profile.gestationalAgeLabel || `${data.profile.gestationalWeek}w ${data.profile.gestationalDay || 0}d`}</strong></div>
+            <div class="metric"><span>BMR</span><strong>${data.targets.bmrKcal}</strong></div>
+            <div class="metric"><span>Calories</span><strong>${data.targets.recommendedDailyCaloriesMin}-${data.targets.recommendedDailyCaloriesMax}</strong></div>
+            <div class="metric"><span>Protein</span><strong>${data.targets.recommendedDailyProteinG}g</strong></div>
+            <div class="metric"><span>Hydration</span><strong>${data.targets.hydrationLiters}L</strong></div>
+          </div>
+          ${data.riskRegister.length ? `<div class="alert">${data.riskRegister[0].description} ${data.riskRegister[0].immediateAction}</div>` : ""}
+          <div>
+            <h3>Healthy variety options</h3>
+            <div class="option-grid">${optionCards.join("")}</div>
+          </div>
+          ${focusCard}
+          <div>
+            <h3>Milk and healthy food recommendations</h3>
+            <div class="option-grid">${nutritionCards.join("")}</div>
+          </div>
+          ${microCard}
+          <div>
+            <h3>Seven-day plan</h3>
+            <div class="days">${days.join("")}</div>
+          </div>
+          <details>
+            <summary>Machine-readable JSON</summary>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+          </details>
+        `;
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const events = [];
+        let buffer = "";
+        submitBtn.disabled = true;
+        runState.textContent = "Generating plan...";
+        progressBar.style.width = "8%";
+        output.innerHTML = `<div class="event-list"></div>`;
+
+        try {
+          const response = await fetch("/api/plan/stream", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload())
+          });
+
+          if (!response.ok || !response.body) {
+            throw new Error(`Request failed: ${response.status}`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          const eventList = output.querySelector(".event-list");
+
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop();
+            for (const line of lines) {
+              if (!line.trim()) continue;
+              const parsed = JSON.parse(line);
+              events.push(parsed);
+              if (parsed.progress) {
+                progressBar.style.width = `${Math.min(100, Math.round(parsed.progress * 100))}%`;
+              }
+              if (parsed.type === "safety.alert") {
+                runState.textContent = parsed.message;
+              } else if (parsed.type === "done") {
+                runState.textContent = parsed.summary;
+                progressBar.style.width = "100%";
+                renderDone(parsed, events);
+              } else if (eventList) {
+                eventList.insertAdjacentHTML("beforeend", eventRow(parsed));
+              }
+            }
+          }
+        } catch (error) {
+          runState.textContent = "Could not generate the plan.";
+          output.innerHTML = `<div class="alert">${error.message}</div>`;
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
