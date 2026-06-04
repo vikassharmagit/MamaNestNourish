@@ -16,6 +16,11 @@ const JWKS_URL = ISSUER ? `${ISSUER}/.well-known/jwks.json` : "";
 const cognito = new CognitoIdentityProviderClient({ region: REGION });
 let jwksCache = null;
 
+function sendCognito(command) {
+  if (globalThis.__cognitoTestSend) return globalThis.__cognitoTestSend(command);
+  return cognito.send(command);
+}
+
 function normalizeIdentifier(identifier = "") {
   return String(identifier).trim();
 }
@@ -26,7 +31,14 @@ function isPhoneIdentifier(identifier) {
 
 function normalizePhone(identifier) {
   const compact = identifier.replace(/[\s().-]/g, "");
+  if (/^[6-9]\d{9}$/.test(compact)) return `+91${compact}`;
   return compact.startsWith("+") ? compact : `+${compact}`;
+}
+
+function cognitoUsernameFor(identifier = "") {
+  const normalized = normalizeIdentifier(identifier);
+  if (isPhoneIdentifier(normalized)) return normalizePhone(normalized);
+  return normalized;
 }
 
 function userAttributeFor(identifier) {
@@ -68,9 +80,9 @@ function assertConfigured() {
 
 export async function signUp({ identifier, email, password }) {
   assertConfigured();
-  const username = normalizeIdentifier(identifier || email);
+  const username = cognitoUsernameFor(identifier || email);
   assertCredentials(username, password);
-  await cognito.send(new SignUpCommand({
+  await sendCognito(new SignUpCommand({
     ClientId: CLIENT_ID,
     Username: username,
     Password: password,
@@ -81,7 +93,7 @@ export async function signUp({ identifier, email, password }) {
 
 export async function confirmSignUp({ identifier, email, code }) {
   assertConfigured();
-  const username = normalizeIdentifier(identifier || email);
+  const username = cognitoUsernameFor(identifier || email);
   if (!username) {
     const error = new Error("Enter the email address or phone number used for signup.");
     error.statusCode = 400;
@@ -92,7 +104,7 @@ export async function confirmSignUp({ identifier, email, code }) {
     error.statusCode = 400;
     throw error;
   }
-  await cognito.send(new ConfirmSignUpCommand({
+  await sendCognito(new ConfirmSignUpCommand({
     ClientId: CLIENT_ID,
     Username: username,
     ConfirmationCode: code
@@ -102,13 +114,13 @@ export async function confirmSignUp({ identifier, email, code }) {
 
 export async function resendConfirmationCode({ identifier, email }) {
   assertConfigured();
-  const username = normalizeIdentifier(identifier || email);
+  const username = cognitoUsernameFor(identifier || email);
   if (!username) {
     const error = new Error("Enter the email address or phone number used for signup.");
     error.statusCode = 400;
     throw error;
   }
-  await cognito.send(new ResendConfirmationCodeCommand({
+  await sendCognito(new ResendConfirmationCodeCommand({
     ClientId: CLIENT_ID,
     Username: username
   }));
@@ -117,9 +129,9 @@ export async function resendConfirmationCode({ identifier, email }) {
 
 export async function login({ identifier, email, password }) {
   assertConfigured();
-  const username = normalizeIdentifier(identifier || email);
+  const username = cognitoUsernameFor(identifier || email);
   assertCredentials(username, password);
-  const response = await cognito.send(new InitiateAuthCommand({
+  const response = await sendCognito(new InitiateAuthCommand({
     AuthFlow: "USER_PASSWORD_AUTH",
     ClientId: CLIENT_ID,
     AuthParameters: {
