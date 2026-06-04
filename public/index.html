@@ -77,6 +77,49 @@
         font-size: 14px;
       }
 
+      .auth-card {
+        display: grid;
+        gap: 8px;
+        min-width: min(100%, 440px);
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.84);
+      }
+
+      .auth-row {
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) minmax(110px, 0.8fr) auto auto;
+        gap: 8px;
+      }
+
+      .auth-row input {
+        min-height: 34px;
+        padding: 7px 9px;
+        font-size: 13px;
+      }
+
+      .auth-row button,
+      .auth-actions button {
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: 13px;
+        box-shadow: none;
+      }
+
+      .auth-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .auth-message {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
       main {
         display: grid;
         grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
@@ -616,6 +659,15 @@
           padding: 14px 0;
         }
 
+        .auth-row {
+          grid-template-columns: 1fr;
+        }
+
+        .auth-actions {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
         .grid {
           grid-template-columns: 1fr;
         }
@@ -660,7 +712,25 @@
           </div>
           <span>MyPregLady</span>
         </div>
-        <div class="status">Week-by-week pregnancy planning API demo</div>
+        <div class="auth-card" id="authCard">
+          <div class="status">Week-by-week pregnancy planning API demo</div>
+          <div class="auth-row" id="authInputs">
+            <input id="authEmail" type="email" autocomplete="email" placeholder="Email" />
+            <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
+            <button id="loginBtn" type="button">Log in</button>
+            <button id="signupBtn" type="button">Sign up</button>
+          </div>
+          <div class="auth-row" id="confirmRow" hidden>
+            <input id="confirmCode" inputmode="numeric" placeholder="Confirmation code" />
+            <span></span>
+            <button id="confirmBtn" type="button">Confirm</button>
+            <button id="cancelConfirmBtn" type="button">Cancel</button>
+          </div>
+          <div class="auth-actions">
+            <div id="authMessage" class="auth-message">Checking authentication...</div>
+            <button id="logoutBtn" type="button" hidden>Log out</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -811,6 +881,52 @@
       const runState = document.querySelector("#runState");
       const progressBar = document.querySelector("#progressBar");
       const submitBtn = document.querySelector("#submitBtn");
+      let authConfigured = false;
+      let authTokens = JSON.parse(localStorage.getItem("mypregladyTokens") || "null");
+
+      function authHeader() {
+        return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
+      }
+
+      function setAuthMessage(message) {
+        document.querySelector("#authMessage").textContent = message;
+      }
+
+      function updateAuthUi() {
+        const loggedIn = Boolean(authTokens?.IdToken);
+        document.querySelector("#authInputs").hidden = !authConfigured || loggedIn;
+        document.querySelector("#logoutBtn").hidden = !loggedIn;
+        submitBtn.disabled = authConfigured && !loggedIn;
+        if (!authConfigured) {
+          setAuthMessage("Cognito is not configured on this server yet. Plan generation is open in local/demo mode.");
+        } else if (loggedIn) {
+          setAuthMessage("Signed in. You can generate a private plan.");
+        } else {
+          setAuthMessage("Sign in or create an account to generate a plan.");
+        }
+      }
+
+      async function authRequest(path, body) {
+        const response = await fetch(path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Authentication failed");
+        return data;
+      }
+
+      async function loadAuthConfig() {
+        try {
+          const response = await fetch("/api/auth/config");
+          const config = await response.json();
+          authConfigured = Boolean(config.configured);
+        } catch {
+          authConfigured = false;
+        }
+        updateAuthUi();
+      }
 
       function csv(id) {
         return document
@@ -972,6 +1088,57 @@
 
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
       updateProfileNotes();
+      loadAuthConfig();
+
+      document.querySelector("#signupBtn").addEventListener("click", async () => {
+        try {
+          await authRequest("/api/auth/signup", {
+            email: value("#authEmail"),
+            password: value("#authPassword")
+          });
+          document.querySelector("#confirmRow").hidden = false;
+          setAuthMessage("Check your email and enter the confirmation code.");
+        } catch (error) {
+          setAuthMessage(error.message);
+        }
+      });
+
+      document.querySelector("#confirmBtn").addEventListener("click", async () => {
+        try {
+          await authRequest("/api/auth/confirm", {
+            email: value("#authEmail"),
+            code: value("#confirmCode")
+          });
+          document.querySelector("#confirmRow").hidden = true;
+          setAuthMessage("Account confirmed. You can log in now.");
+        } catch (error) {
+          setAuthMessage(error.message);
+        }
+      });
+
+      document.querySelector("#cancelConfirmBtn").addEventListener("click", () => {
+        document.querySelector("#confirmRow").hidden = true;
+      });
+
+      document.querySelector("#loginBtn").addEventListener("click", async () => {
+        try {
+          const data = await authRequest("/api/auth/login", {
+            email: value("#authEmail"),
+            password: value("#authPassword")
+          });
+          authTokens = data.tokens;
+          localStorage.setItem("mypregladyTokens", JSON.stringify(authTokens));
+          updateAuthUi();
+        } catch (error) {
+          setAuthMessage(error.message);
+        }
+      });
+
+      document.querySelector("#logoutBtn").addEventListener("click", () => {
+        authTokens = null;
+        localStorage.removeItem("mypregladyTokens");
+        updateAuthUi();
+      });
 
       function eventRow(event) {
         const message = event.message || event.summary || event.delta || `${event.tool || event.type} completed`;
@@ -1118,7 +1285,7 @@
         try {
           const response = await fetch("/api/plan/stream", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...authHeader() },
             body: JSON.stringify(payload())
           });
 
@@ -1159,6 +1326,7 @@
           output.innerHTML = `<div class="alert">${error.message}</div>`;
         } finally {
           submitBtn.disabled = false;
+          updateAuthUi();
         }
       });
     </script>

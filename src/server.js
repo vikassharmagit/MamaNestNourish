@@ -2,6 +2,7 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { authConfig, confirmSignUp, login, requireAuth, signUp } from "./auth.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
 
 const PORT = Number(process.env.PORT || 3000);
@@ -31,6 +32,7 @@ function readJson(req) {
 }
 
 async function writeEventStream(req, res) {
+  await requireAuth(req);
   const input = await readJson(req);
   res.writeHead(200, {
     "Content-Type": "application/x-ndjson; charset=utf-8",
@@ -45,6 +47,14 @@ async function writeEventStream(req, res) {
   res.end();
 }
 
+function writeJson(res, statusCode, body) {
+  res.writeHead(statusCode, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*"
+  });
+  res.end(JSON.stringify(body));
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
@@ -53,7 +63,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type"
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
       });
       res.end();
       return;
@@ -72,6 +82,26 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/auth/config") {
+      writeJson(res, 200, authConfig());
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/auth/signup") {
+      writeJson(res, 200, await signUp(await readJson(req)));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/auth/confirm") {
+      writeJson(res, 200, await confirmSignUp(await readJson(req)));
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/auth/login") {
+      writeJson(res, 200, await login(await readJson(req)));
+      return;
+    }
+
     if (req.method === "POST" && url.pathname === "/api/plan/stream") {
       await writeEventStream(req, res);
       return;
@@ -80,8 +110,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Not found" }));
   } catch (error) {
-    res.writeHead(400, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: error.message }));
+    writeJson(res, error.statusCode || 400, { error: error.message });
   }
 });
 

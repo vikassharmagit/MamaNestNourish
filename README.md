@@ -48,6 +48,19 @@ Invoke-WebRequest -Uri "http://localhost:3000/api/plan/stream" -Method Post -Bod
 npm test
 ```
 
+## Cognito Authentication
+
+Set these environment variables to enable AWS Cognito authentication:
+
+```powershell
+$env:COGNITO_REGION="us-east-1"
+$env:COGNITO_USER_POOL_ID="your-user-pool-id"
+$env:COGNITO_CLIENT_ID="your-app-client-id"
+npm start
+```
+
+When these variables are present, `POST /api/plan/stream` requires an `Authorization: Bearer <idToken>` header. The app includes signup, confirmation, login, and logout UI backed by Cognito.
+
 ## Safety
 
 Every completed output includes a medical disclaimer. Risk factors are surfaced through `safety.alert` events and in the final `riskRegister`. The deterministic implementation uses conservative defaults and asks follow-up questions when required fields are missing.
