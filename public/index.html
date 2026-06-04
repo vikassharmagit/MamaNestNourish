@@ -801,14 +801,6 @@
         <h1>Build a safe weekly plan</h1>
         <p>Enter the essentials and generate a structured plan with streamed progress, safety flags, targets, meals, hydration, and exercise guidance.</p>
 
-        <div class="notice">
-          <div class="visual" aria-hidden="true">!</div>
-          <div>
-            <strong>Medical disclaimer</strong>
-            Educational guidance only; not a substitute for professional medical advice. For urgent symptoms or higher-risk findings, contact a qualified healthcare provider immediately.
-          </div>
-        </div>
-
         <form id="planForm">
           <div class="grid profile-grid">
             <label class="date-field">
@@ -1308,7 +1300,6 @@
         const data = done.output;
         if (!data.targets) {
           output.innerHTML = `
-            <div class="alert">${data.disclaimer}</div>
             <div class="checklist">
               <h3>Follow-up questions</h3>
               <ul>${data.followUpQuestions.map((q) => `<li>${q}</li>`).join("")}</ul>
