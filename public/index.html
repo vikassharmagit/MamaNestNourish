@@ -24,6 +24,10 @@
         box-sizing: border-box;
       }
 
+      [hidden] {
+        display: none !important;
+      }
+
       body {
         margin: 0;
         min-height: 100vh;
@@ -146,6 +150,19 @@
         padding: 0 10px;
         font-size: 13px;
         box-shadow: none;
+      }
+
+      .topbar-logout {
+        min-height: 36px;
+        padding: 0 12px;
+        border: 1px solid #b8cedd;
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 750;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(62, 124, 177, 0.12);
       }
 
       .auth-actions {
@@ -769,9 +786,9 @@
           </div>
           <div class="auth-actions">
             <div id="authMessage" class="auth-message">Checking authentication...</div>
-            <button id="logoutBtn" type="button" hidden>Log out</button>
           </div>
         </div>
+        <button id="logoutBtn" class="topbar-logout" type="button" hidden>Log out</button>
       </div>
     </header>
 
@@ -937,6 +954,7 @@
         const loggedIn = Boolean(authTokens?.IdToken);
         const appUnlocked = authConfigured && loggedIn;
         document.body.classList.toggle("auth-locked", !appUnlocked);
+        document.querySelector("#authCard").hidden = appUnlocked;
         document.querySelector("#authInputs").hidden = !authConfigured || loggedIn;
         document.querySelector("#logoutBtn").hidden = !loggedIn;
         submitBtn.disabled = !appUnlocked;
