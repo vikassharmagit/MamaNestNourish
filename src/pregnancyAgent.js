@@ -1,3 +1,5 @@
+import { loadApprovedPlanningData } from "./dataStore.js";
+
 const DISCLAIMER =
   "Educational guidance only; this is not a substitute for professional medical advice. For urgent symptoms or moderate/high-risk findings, contact a qualified healthcare provider immediately.";
 
@@ -126,81 +128,31 @@ function scaleMeal(meal, targets) {
 }
 
 function mealLibrary(profile) {
+  const { meals } = loadApprovedPlanningData();
   const diet = String(profile.dietaryPreferences).toLowerCase();
-  const vegetarian = diet === "vegetarian";
-  const eggitarian = diet === "eggitarian";
+  const byType = (mealType) =>
+    meals.filter((meal) => meal.mealType === mealType && meal.dietTypes.includes(diet));
 
-  const breakfast = vegetarian
-    ? [
-        ["Vegetable upma with curd", 380, 18, "Add peas, carrots, and curd for protein and calcium."],
-        ["Moong dal chilla with mint curd", 410, 22, "Use less oil; pair with tomato or cucumber."],
-        ["Oats porridge with pasteurized milk, chia, and fruit", 390, 17, "Use milk or calcium-fortified soy milk; skip nuts if allergic."],
-        ["Paneer vegetable poha", 420, 21, "Add lemon for iron absorption and keep salt moderate."]
-      ]
-    : eggitarian
-      ? [
-          ["Vegetable upma with boiled egg or curd", 400, 22, "Choose fully cooked egg; avoid runny yolks."],
-          ["Egg bhurji with whole-grain toast", 430, 25, "Add spinach or capsicum for micronutrients."],
-          ["Oats porridge with pasteurized milk and fruit", 390, 17, "Use milk or calcium-fortified soy milk; add seeds if tolerated."],
-          ["Moong dal chilla with egg on the side", 450, 28, "Keep egg fully cooked and use minimal oil."]
-        ]
-      : [
-          ["Oats with egg or curd", 400, 24, "Choose fully cooked egg or pasteurized curd."],
-          ["Chicken vegetable sandwich on whole grain", 440, 30, "Use freshly cooked chicken and plenty of salad."],
-          ["Poha with curd and cooked sprouts", 390, 19, "Use pasteurized curd and cooked sprouts if food safety is a concern."],
-          ["Idli with sambar and boiled egg", 430, 27, "Keep egg fully cooked; add vegetables to sambar."]
-        ];
-
-  const lunch = vegetarian
-    ? [
-        ["Dal, rice, vegetables, curd", 560, 28, "Half plate vegetables; steady salt unless clinician advises otherwise."],
-        ["Rajma or chole bowl with brown rice", 590, 30, "Add salad and lemon; keep portions comfortable."],
-        ["Paneer/tofu tikka wrap with salad", 570, 32, "Use whole-grain roti and grilled filling."],
-        ["Vegetable khichdi with curd and salad", 540, 25, "Gentle option for nausea or digestion days."]
-      ]
-    : eggitarian
-      ? [
-          ["Egg or dal bowl with rice and vegetables", 570, 32, "Fully cook eggs; add greens and curd."],
-          ["Paneer/tofu wrap with salad", 570, 32, "Use whole-grain roti and a curd dip."],
-          ["Vegetable khichdi with boiled egg", 560, 29, "Gentle option with extra protein."],
-          ["Chole salad bowl with egg", 590, 34, "Balance legumes with vegetables and lemon."]
-        ]
-      : [
-          ["Lean protein bowl with rice and vegetables", 580, 34, "Use freshly cooked chicken, fish, eggs, or beans."],
-          ["Chicken dalia with vegetables", 570, 35, "Cook thoroughly and keep spice comfortable."],
-          ["Fish curry with rice and vegetables", 590, 33, "Use low-mercury fish and cook thoroughly."],
-          ["Dal, rice, vegetables, curd with grilled chicken", 610, 38, "Keep portions balanced and salt moderate."]
-        ];
-
-  const dinner = vegetarian
-    ? [
-        ["Chapati with paneer/tofu and salad", 520, 26, "Finish 2-3 hours before sleep when possible."],
-        ["Millet dosa with sambar", 500, 23, "Add extra dal or tofu for protein."],
-        ["Vegetable pulao with raita and dal", 540, 25, "Keep vegetables varied and spice comfortable."],
-        ["Soup, chapati, and sprouted moong salad", 500, 24, "Use cooked sprouts if advised for food safety."]
-      ]
-    : eggitarian
-      ? [
-          ["Chapati with egg curry or paneer and salad", 540, 30, "Use fully cooked egg curry."],
-          ["Millet dosa with sambar and egg", 530, 29, "Add vegetables to sambar."],
-          ["Vegetable pulao with raita and boiled egg", 550, 30, "Keep dinner moderate for reflux comfort."],
-          ["Soup, chapati, and omelet", 520, 31, "Cook omelet firm; add vegetables."]
-        ]
-      : [
-          ["Chapati with protein and salad", 540, 32, "Use chicken, fish, egg, dal, or paneer based on preference."],
-          ["Chicken soup with chapati and vegetables", 520, 34, "Good lighter dinner option."],
-          ["Fish or chicken curry with millet roti", 570, 35, "Cook thoroughly and avoid high-mercury fish."],
-          ["Vegetable pulao with raita and grilled protein", 580, 36, "Keep salt and spice moderate."]
-        ];
-
-  return { breakfast, lunch, dinner };
+  return {
+    breakfast: byType("breakfast"),
+    lunch: byType("lunch"),
+    dinner: byType("dinner")
+  };
 }
 
 function mealSet(profile, targets, dayIndex) {
   const library = mealLibrary(profile);
   const pick = (items, offset, time) => {
-    const [name, calories, proteinG, portionNotes] = items[(dayIndex + offset - 1) % items.length];
-    return scaleMeal({ time, name, calories, proteinG, portionNotes }, targets);
+    const meal = items[(dayIndex + offset - 1) % items.length];
+    return scaleMeal({
+      time,
+      name: meal.name,
+      calories: meal.calories,
+      proteinG: meal.proteinG,
+      portionNotes: meal.portionNotes,
+      sourceUrls: meal.sourceUrls,
+      lastReviewedAt: meal.lastReviewedAt
+    }, targets);
   };
 
   return [
@@ -211,119 +163,23 @@ function mealSet(profile, targets, dayIndex) {
 }
 
 function snackSet(profile, dayIndex) {
+  const { snacks } = loadApprovedPlanningData();
   const diet = String(profile.dietaryPreferences).toLowerCase();
-  const options = [
-    ["Fruit with roasted chana or seeds", 180, 7, "Skip allergens; seeds or chana work when nuts are avoided."],
-    ["Pasteurized milk or curd with fruit and cinnamon", 210, 10, "Choose pasteurized milk/curd or calcium-fortified soy milk."],
-    ["Whole-grain toast with paneer spread", 230, 12, "Add cucumber or tomato."],
-    ["Vegetable soup with dal or beans", 190, 11, "Useful on lower-appetite days."],
-    ["Low-fat yogurt with oats and berries", 220, 12, "Use pasteurized yogurt; choose lower-sugar options."]
-  ];
-
-  if (diet === "eggitarian" || diet === "non_vegetarian") {
-    options.push(["Fully cooked egg with fruit", 210, 13, "Avoid raw or runny eggs."]);
-  }
+  const options = snacks.filter((snack) => snack.dietTypes.includes(diet));
 
   const first = options[(dayIndex - 1) % options.length];
   const second = options[(dayIndex + 1) % options.length];
   return [
-    { time: "10:30", name: first[0], calories: first[1], proteinG: first[2], portionNotes: first[3] },
-    { time: "16:30", name: second[0], calories: second[1], proteinG: second[2], portionNotes: `${second[3]} Keep caffeine before 14:00 if used at all.` }
+    { time: "10:30", name: first.name, calories: first.calories, proteinG: first.proteinG, portionNotes: first.portionNotes, sourceUrls: first.sourceUrls, lastReviewedAt: first.lastReviewedAt },
+    { time: "16:30", name: second.name, calories: second.calories, proteinG: second.proteinG, portionNotes: `${second.portionNotes} Keep caffeine before 14:00 if used at all.`, sourceUrls: second.sourceUrls, lastReviewedAt: second.lastReviewedAt }
   ];
 }
 
 function exerciseSet(hasHypertension, targets, dayIndex) {
-  const lowIntensityPlan = [
-    {
-      activity: "Easy walk plus pelvic-floor breathing",
-      durationMin: 20,
-      steps: ["5 min slow warm-up walk", "10 min easy flat-surface walk", "5 min pelvic-floor breathing and ankle circles"],
-      benefit: "Maintains circulation and mobility while keeping intensity conservative."
-    },
-    {
-      activity: "Prenatal mobility and side-lying stretches",
-      durationMin: 18,
-      steps: ["Cat-cow x 8", "Seated shoulder rolls x 10", "Side-lying hip comfort stretch 30 sec each side", "Pelvic-floor contractions: 2 sets of 8"],
-      benefit: "Supports posture, hips, and pelvic floor without raising exertion much."
-    },
-    {
-      activity: "Gentle indoor walk with posture resets",
-      durationMin: 20,
-      steps: ["4 rounds: 4 min easy walk + 1 min posture reset", "Finish with calf raises x 8 holding support"],
-      benefit: "Breaks up sedentary desk time and supports lower-leg circulation."
-    },
-    {
-      activity: "Breathing practice plus ankle and calf mobility",
-      durationMin: 16,
-      steps: ["Diaphragmatic breathing 3 min", "Ankle circles x 10 each side", "Supported calf raises x 8", "Pelvic tilts x 8", "Pelvic-floor contractions: 2 sets of 8"],
-      benefit: "A low-demand recovery day that still keeps movement in the plan."
-    },
-    {
-      activity: "Water walk or shaded easy walk",
-      durationMin: 20,
-      steps: ["5 min easy warm-up", "10 min comfortable walking", "5 min cool-down and hydration"],
-      benefit: "Gentle aerobic movement with lower overheating risk when paced carefully."
-    },
-    {
-      activity: "Supported prenatal yoga basics",
-      durationMin: 18,
-      steps: ["Seated breathing", "Supported cat-cow", "Wall-supported side stretch", "Child pose variation if comfortable", "Pelvic-floor relaxation"],
-      benefit: "Encourages mobility and relaxation while avoiding strenuous positions."
-    },
-    {
-      activity: "Restorative movement and symptom check",
-      durationMin: 15,
-      steps: ["5 min easy walk", "5 min gentle stretching", "5 min symptom check and hydration"],
-      benefit: "Keeps the weekly rhythm without pushing intensity."
-    }
-  ];
-
-  const standardPlan = [
-    {
-      activity: "Brisk walk plus prenatal mobility",
-      durationMin: 30,
-      steps: ["5 min warm-up", "20 min talk-test brisk walk", "5 min hip and calf mobility"],
-      benefit: "Builds toward ACOG-style 150 min/week moderate aerobic activity."
-    },
-    {
-      activity: "Low-impact prenatal strength circuit",
-      durationMin: 25,
-      steps: ["Supported squats x 8", "Wall push-ups x 8", "Bird-dog x 6 each side", "Side steps x 10 each side", "Repeat 2 rounds"],
-      benefit: "Supports posture and muscular endurance without jumping or heavy strain."
-    },
-    {
-      activity: "Stationary cycling or flat walking",
-      durationMin: 30,
-      steps: ["5 min easy pace", "20 min moderate talk-test pace", "5 min cool-down"],
-      benefit: "Provides low-impact aerobic work with easy intensity control."
-    },
-    {
-      activity: "Prenatal yoga and pelvic floor",
-      durationMin: 25,
-      steps: ["Breathing warm-up", "Cat-cow", "Supported warrior stance", "Seated hip mobility", "Pelvic-floor contractions and relaxation"],
-      benefit: "Adds flexibility, balance support, and pelvic-floor awareness."
-    },
-    {
-      activity: "Walk intervals",
-      durationMin: 30,
-      steps: ["5 min warm-up", "5 rounds: 3 min moderate + 1 min easy", "5 min cool-down"],
-      benefit: "Adds variety while staying inside the talk-test range."
-    },
-    {
-      activity: "Light resistance and mobility",
-      durationMin: 25,
-      steps: ["Band rows x 10", "Supported sit-to-stand x 8", "Standing hip abduction x 8 each side", "Wall angels x 8", "Repeat 2 rounds"],
-      benefit: "Strengthens back, hips, and legs for daily comfort."
-    },
-    {
-      activity: "Easy recovery walk and stretch",
-      durationMin: 20,
-      steps: ["15 min easy walk", "5 min calf, chest, and hip mobility"],
-      benefit: "Recovery-focused day that keeps movement consistent."
-    }
-  ];
-
-  const selected = hasHypertension ? lowIntensityPlan[dayIndex - 1] : standardPlan[dayIndex - 1];
+  const { exercises } = loadApprovedPlanningData();
+  const riskMode = hasHypertension ? "hypertension" : "standard";
+  const options = exercises.filter((exercise) => exercise.riskMode === riskMode);
+  const selected = options[(dayIndex - 1) % options.length];
   const durationMin = Math.min(selected.durationMin, targets.recommendedExerciseMinutesPerDay);
 
   return [
@@ -334,6 +190,8 @@ function exerciseSet(hasHypertension, targets, dayIndex) {
       intensity: hasHypertension ? "low; able to speak comfortably" : "low-to-moderate; talk-test comfortable",
       steps: selected.steps,
       benefit: selected.benefit,
+      sourceUrls: selected.sourceUrls,
+      lastReviewedAt: selected.lastReviewedAt,
       sourceBasis: hasHypertension
         ? "Conservative adaptation of ACOG/NHS pregnancy exercise guidance because hypertension is listed; clinician review recommended."
         : "Based on ACOG/NHS guidance for regular moderate activity, pelvic-floor work, and symptom-aware modifications.",
@@ -343,92 +201,63 @@ function exerciseSet(hasHypertension, targets, dayIndex) {
 }
 
 function optionBank(profile) {
+  const { nutrients } = loadApprovedPlanningData();
   const library = mealLibrary(profile);
   return {
-    breakfast: library.breakfast.map(([name]) => name),
-    lunch: library.lunch.map(([name]) => name),
-    dinner: library.dinner.map(([name]) => name),
+    breakfast: library.breakfast.map((meal) => meal.name),
+    lunch: library.lunch.map((meal) => meal.name),
+    dinner: library.dinner.map((meal) => meal.name),
     snacks: snackSet(profile, 1).map((snack) => snack.name),
-    healthyFocus: [
-      "Include pasteurized milk, curd, yogurt, cheese, or calcium-fortified soy alternatives for calcium and protein.",
-      "Rotate legumes, dairy/curd, tofu/paneer, eggs, poultry, or low-mercury fish according to diet.",
-      "Use varied vegetables and fruit across colors during the week.",
-      "Prefer whole grains such as oats, brown rice, millet, dalia, chapati, and idli/dosa batter."
-    ]
+    healthyFocus: nutrients.healthyFocus
   };
 }
 
 function babySizeForWeek(week = 0) {
-  const sizes = [
-    { max: 4, comparison: "poppy seed", lengthCm: 0.2, weightG: 1, color: "#8f6a52" },
-    { max: 8, comparison: "kidney bean", lengthCm: 1.6, weightG: 1, color: "#9b4c45" },
-    { max: 12, comparison: "lime", lengthCm: 5.4, weightG: 14, color: "#86b84f" },
-    { max: 16, comparison: "avocado", lengthCm: 11.6, weightG: 100, color: "#7aa35a" },
-    { max: 20, comparison: "banana", lengthCm: 25.6, weightG: 300, color: "#e6c84d" },
-    { max: 24, comparison: "corn cob", lengthCm: 30, weightG: 600, color: "#f0cc4f" },
-    { max: 28, comparison: "eggplant", lengthCm: 37.6, weightG: 1000, color: "#6d4b8d" },
-    { max: 32, comparison: "squash", lengthCm: 42.4, weightG: 1700, color: "#d99b3d" },
-    { max: 36, comparison: "honeydew melon", lengthCm: 47.4, weightG: 2600, color: "#b8d978" },
-    { max: 42, comparison: "watermelon", lengthCm: 51, weightG: 3400, color: "#579b68" }
-  ];
-  const size = sizes.find((item) => week <= item.max) ?? sizes[sizes.length - 1];
+  const { fetalGrowth } = loadApprovedPlanningData();
+  const size = fetalGrowth.find((item) => week <= item.maxWeek) ?? fetalGrowth[fetalGrowth.length - 1];
   return {
     week,
     comparison: size.comparison,
     lengthCm: size.lengthCm,
     weightG: size.weightG,
     color: size.color,
-    note: "Approximate visual comparison; fetal growth varies and ultrasound/clinician measurements are more precise.",
-    sourceBasis: "General week-by-week fetal growth ranges and public pregnancy trackers such as March of Dimes; comparison objects are illustrative."
+    note: size.note,
+    sourceBasis: size.sourceBasis,
+    sourceUrls: size.sourceUrls,
+    lastReviewedAt: size.lastReviewedAt
   };
 }
 
 function nutritionRecommendations(profile) {
+  const { nutrients } = loadApprovedPlanningData();
   const dairy = String(profile.dietaryPreferences).toLowerCase() === "vegetarian"
-    ? "Pasteurized milk, curd, yogurt, paneer, cheese, or calcium-fortified soy milk."
-    : "Pasteurized milk, curd, yogurt, cheese, eggs, lean protein, or calcium-fortified soy milk.";
-  return [
-    {
-      title: "Milk and calcium",
-      items: [dairy, "Prefer pasteurized dairy; use lower-fat/lower-sugar choices when suitable.", "If dairy-free, choose unsweetened calcium-fortified soy drinks or yogurt."]
-    },
-    {
-      title: "Daily healthy foods",
-      items: ["5 portions of varied fruit and vegetables.", "Whole grains such as oats, brown rice, millet, chapati, dalia, and wholemeal bread.", "Protein foods such as dal, beans, tofu, paneer, eggs, poultry, fish, nuts/seeds if not allergic."]
-    },
-    {
-      title: "Key nutrients",
-      items: ["Iron: beans, peas, leafy greens, fortified cereals, poultry/fish/meat if eaten.", "Vitamin D: fortified milk, egg yolk, low-mercury fatty fish if eaten, plus clinician-advised supplement.", "Choline: milk, eggs, soy foods, peanuts if not allergic."]
-    }
-  ];
+    ? nutrients.nutritionRecommendations.vegetarianDairy
+    : nutrients.nutritionRecommendations.nonVegetarianDairy;
+  return nutrients.nutritionRecommendations.groups.map((group) => ({
+    title: group.title,
+    items: group.items.map((item) => item.replace("{{dairy}}", dairy)),
+    sourceUrls: nutrients.sourceUrls,
+    lastReviewedAt: nutrients.lastReviewedAt
+  }));
 }
 
 function micronutrientRecommendations(profile) {
+  const { nutrients } = loadApprovedPlanningData();
   const week = profile.gestationalWeek ?? 0;
   const trimesterFocus = week < 14
-    ? "First trimester focus: folate, iodine, vitamin D, and nausea-tolerant iron/protein foods."
+    ? nutrients.micronutrients.firstTrimester
     : week < 28
-      ? "Second trimester focus: iron, calcium, vitamin D, iodine, choline, omega-3, and steady protein for fetal growth."
-      : "Third trimester focus: iron, calcium, vitamin D, iodine, choline, omega-3, hydration, and protein for growth and recovery.";
+      ? nutrients.micronutrients.secondTrimester
+      : nutrients.micronutrients.thirdTrimester;
 
   return {
     title: `Week ${week} vitamins and minerals`,
     summary: trimesterFocus,
-    items: [
-      "Folate/folic acid: supports neural-tube and placental development; continue prenatal vitamin as clinician advised.",
-      "Iron: supports expanding blood volume and helps lower anemia risk; pair beans/greens/fortified cereals with vitamin C foods.",
-      "Calcium: supports fetal bones and teeth; include pasteurized milk, curd/yogurt, paneer, cheese, or fortified soy alternatives.",
-      "Vitamin D: helps calcium absorption and bone health; use fortified foods and clinician-advised supplementation if needed.",
-      "Iodine: supports fetal brain and thyroid development; use iodized salt in clinician-appropriate amounts.",
-      "Choline: supports fetal brain development; sources include milk, eggs, soy foods, beans, and peanuts if not allergic.",
-      "Omega-3 DHA: supports brain and eye development; consider low-mercury fish if eaten or clinician-approved vegetarian DHA."
-    ],
-    precautions: [
-      "Do not start high-dose supplements without clinician approval.",
-      "Avoid retinol/high-dose vitamin A supplements in pregnancy unless specifically prescribed.",
-      "If hypertension, diabetes, anemia, thyroid disease, vomiting, or food restrictions are present, ask the clinician to individualize supplements."
-    ],
-    sourceBasis: "Based on guideline-level pregnancy nutrition themes from ACOG, NHS, and public health prenatal nutrition guidance."
+    items: nutrients.micronutrients.items,
+    precautions: nutrients.micronutrients.precautions,
+    sourceBasis: nutrients.micronutrients.sourceBasis,
+    sourceUrls: nutrients.sourceUrls,
+    lastReviewedAt: nutrients.lastReviewedAt
   };
 }
 
@@ -476,31 +305,14 @@ export function generateDailyPlan(profile, targets, dayIndex, startDate = new Da
 }
 
 export function safetyCheck(profile, dailyPlan) {
-  const flags = [
-    {
-      id: "routine-prenatal-review",
-      severity: "green",
-      description: "Plan uses conservative pregnancy activity and nutrition defaults.",
-      immediateAction: "Continue routine prenatal follow-up.",
-      recommendedOwner: "user",
-      urgency: "days",
-      rationale: "Routine monitoring is consistent with guideline-level antenatal care."
-    }
-  ];
-
-  if (profile.conditions.some((condition) => condition.toLowerCase().includes("hypertension"))) {
-    flags.unshift({
-      id: "gestational-hypertension",
-      severity: "yellow",
-      description: "Gestational hypertension can change exercise, diet, and monitoring needs.",
-      immediateAction: "Consult your clinician before increasing exercise intensity; seek urgent care for severe headache, visual symptoms, chest pain, severe swelling, or high blood pressure readings.",
-      recommendedOwner: "clinician",
-      urgency: "24-48 hours",
-      rationale: "ACOG-style guidance treats hypertensive disorders in pregnancy as needing individualized clinician oversight."
-    });
-  }
-
-  return flags;
+  const { safetyRules } = loadApprovedPlanningData();
+  const conditions = profile.conditions.map((condition) => condition.toLowerCase());
+  return safetyRules.filter((rule) => {
+    if (!rule.conditionIncludes.length) return true;
+    return rule.conditionIncludes.some((needle) =>
+      conditions.some((condition) => condition.includes(needle))
+    );
+  });
 }
 
 export function draftChannelCopy(dailyPlan, profile, channels = ["push", "email", "print"]) {

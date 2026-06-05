@@ -1,6 +1,59 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { normalizeAuthIdentifier } from "../src/auth.js";
+import { loadApprovedPlanningData } from "../src/dataStore.js";
+import { server } from "../src/server.js";
 import { runPregnancyPlan } from "../src/pregnancyAgent.js";
+
+function listen(serverInstance) {
+  return new Promise((resolve) => {
+    serverInstance.listen(0, "127.0.0.1", () => {
+      resolve(serverInstance.address());
+    });
+  });
+}
+
+function close(serverInstance) {
+  return new Promise((resolve, reject) => {
+    serverInstance.close((error) => {
+      if (error) reject(error);
+      else resolve();
+    });
+  });
+}
+
+test("auth identifier accepts email or international phone number", () => {
+  assert.deepEqual(normalizeAuthIdentifier("USER@Example.com"), {
+    username: "user@example.com",
+    attribute: { Name: "email", Value: "user@example.com" },
+    delivery: "email"
+  });
+  assert.deepEqual(normalizeAuthIdentifier("+15551234567"), {
+    username: "+15551234567",
+    attribute: { Name: "phone_number", Value: "+15551234567" },
+    delivery: "phone"
+  });
+  assert.deepEqual(normalizeAuthIdentifier("98765 43210"), {
+    username: "+919876543210",
+    attribute: { Name: "phone_number", Value: "+919876543210" },
+    delivery: "phone"
+  });
+  assert.throws(
+    () => normalizeAuthIdentifier("555123"),
+    /international format/
+  );
+});
+
+test("approved planning data is loaded from data files", () => {
+  const data = loadApprovedPlanningData();
+  assert.ok(data.meals.length >= 12);
+  assert.ok(data.snacks.length >= 5);
+  assert.ok(data.exercises.length >= 7);
+  assert.ok(data.fetalGrowth.length >= 10);
+  assert.ok(data.safetyRules.some((rule) => rule.id === "gestational-hypertension"));
+  assert.ok(data.sources.some((source) => source.id === "usda-fdc"));
+  assert.ok(data.meals.every((meal) => meal.reviewStatus === "approved"));
+});
 
 test("streaming pregnancy planner emits required events and final schema", async () => {
   const sample = {
@@ -91,4 +144,43 @@ test("non-vegetarian diet uses non-vegetarian meal suggestions", async () => {
   const firstMeal = done.output.weeklyPlan[0].dailyPlan.meals[0];
   assert.match(firstMeal.name, /egg|curd/i);
   assert.match(done.output.weeklyPlan[0].dailyPlan.optionBank.lunch.join(" "), /chicken|fish/i);
+});
+
+test("server starts and allows local planning when Cognito is not configured", async () => {
+  const address = await listen(server);
+  try {
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+    const configResponse = await fetch(`${baseUrl}/api/auth/config`);
+    assert.equal(configResponse.status, 200);
+    assert.equal((await configResponse.json()).configured, false);
+
+    const planResponse = await fetch(`${baseUrl}/api/plan/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gestationalWeek: 22,
+        gestationalDay: 1,
+        age: 29,
+        heightCm: 165,
+        weightKg: 68,
+        activityLevel: "moderate",
+        dietaryPreferences: "vegetarian",
+        conditions: [],
+        allergies: []
+      })
+    });
+    const events = (await planResponse.text())
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line));
+    assert.equal(planResponse.status, 200);
+    assert.equal(events.at(-1).type, "done");
+    assert.equal(events.at(-1).summary, "Plan complete");
+
+    const pendingResponse = await fetch(`${baseUrl}/api/admin/pending-updates`);
+    assert.equal(pendingResponse.status, 200);
+    assert.ok(Array.isArray((await pendingResponse.json()).updates));
+  } finally {
+    await close(server);
+  }
 });

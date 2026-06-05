@@ -1,0 +1,68 @@
+[
+  {
+    "id": "acog-healthy-eating",
+    "name": "ACOG Healthy Eating During Pregnancy",
+    "url": "https://www.acog.org/womens-health/faqs/healthy-eating-during-pregnancy",
+    "category": "nutrition-guidance",
+    "reviewRequired": true,
+    "lastCheckedAt": "2026-06-05T12:51:18.388Z",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": ""
+  },
+  {
+    "id": "acog-exercise",
+    "name": "ACOG Exercise During Pregnancy",
+    "url": "https://www.acog.org/womens-health/faqs/exercise-during-pregnancy",
+    "category": "exercise-guidance",
+    "reviewRequired": true,
+    "lastCheckedAt": "2026-06-05T12:51:18.388Z",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": ""
+  },
+  {
+    "id": "nhs-foods-avoid",
+    "name": "NHS Foods to Avoid in Pregnancy",
+    "url": "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/",
+    "category": "food-safety",
+    "reviewRequired": true,
+    "lastCheckedAt": "2026-06-05T12:51:18.388Z",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": ""
+  },
+  {
+    "id": "nhs-exercise",
+    "name": "NHS Exercise in Pregnancy",
+    "url": "https://www.nhs.uk/pregnancy/keeping-well/exercise/",
+    "category": "exercise-guidance",
+    "reviewRequired": true,
+    "lastCheckedAt": "2026-06-05T12:51:18.388Z",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": ""
+  },
+  {
+    "id": "usda-fdc",
+    "name": "USDA FoodData Central API",
+    "url": "https://fdc.nal.usda.gov/api-guide/",
+    "category": "nutrition-data",
+    "reviewRequired": false,
+    "lastCheckedAt": "2026-06-05T12:51:18.388Z",
+    "lastStatus": 200,
+    "lastModified": "Fri, 15 May 2026 19:20:07 GMT",
+    "etag": "W/\"127295-1778872807000\""
+  },
+  {
+    "id": "medlineplus-fetal-development",
+    "name": "MedlinePlus Fetal Development",
+    "url": "https://medlineplus.gov/ency/article/002398.htm",
+    "category": "fetal-growth",
+    "reviewRequired": true,
+    "lastCheckedAt": "2026-06-05T12:51:18.388Z",
+    "lastStatus": 200,
+    "lastModified": "Wed, 03 Jun 2026 16:18:39 GMT",
+    "etag": "W/\"d2c87907c398d8284bb8b94849d9bd18\""
+  }
+]

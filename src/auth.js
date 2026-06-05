@@ -11,6 +11,7 @@ import { createPublicKey, verify as verifySignature } from "node:crypto";
 const REGION = process.env.COGNITO_REGION || process.env.AWS_REGION || "us-east-1";
 const USER_POOL_ID = process.env.COGNITO_USER_POOL_ID || "";
 const CLIENT_ID = process.env.COGNITO_CLIENT_ID || "";
+const DEFAULT_PHONE_COUNTRY_CODE = process.env.DEFAULT_PHONE_COUNTRY_CODE || "+91";
 const ISSUER = USER_POOL_ID ? `https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}` : "";
 const JWKS_URL = ISSUER ? `${ISSUER}/.well-known/jwks.json` : "";
 
@@ -26,27 +27,51 @@ function normalizeIdentifier(identifier = "") {
   return String(identifier).trim();
 }
 
+function compactPhone(identifier) {
+  return String(identifier || "").replace(/[\s().-]/g, "");
+}
+
 function isPhoneIdentifier(identifier) {
-  return /^\+?[1-9]\d{7,14}$/.test(identifier.replace(/[\s().-]/g, ""));
+  return /^\+?[1-9]\d{7,14}$/.test(compactPhone(identifier));
 }
 
 function normalizePhone(identifier) {
-  const compact = identifier.replace(/[\s().-]/g, "");
-  if (/^[6-9]\d{9}$/.test(compact)) return `+91${compact}`;
+  const compact = compactPhone(identifier);
+  if (/^[6-9]\d{9}$/.test(compact)) return `${DEFAULT_PHONE_COUNTRY_CODE}${compact}`;
   return compact.startsWith("+") ? compact : `+${compact}`;
 }
 
 function cognitoUsernameFor(identifier = "") {
   const normalized = normalizeIdentifier(identifier);
   if (isPhoneIdentifier(normalized)) return normalizePhone(normalized);
-  return normalized;
+  return normalized.toLowerCase();
 }
 
 function userAttributeFor(identifier) {
   if (isPhoneIdentifier(identifier)) {
     return { Name: "phone_number", Value: normalizePhone(identifier) };
   }
-  return { Name: "email", Value: identifier };
+  return { Name: "email", Value: String(identifier).toLowerCase() };
+}
+
+export function normalizeAuthIdentifier(identifier) {
+  const username = cognitoUsernameFor(identifier);
+  if (!username) {
+    const error = new Error("Enter an email address or phone number.");
+    error.statusCode = 400;
+    throw error;
+  }
+  if (!username.includes("@") && !isPhoneIdentifier(username)) {
+    const error = new Error("Use a valid email address or phone number in international format, for example +15551234567.");
+    error.statusCode = 400;
+    throw error;
+  }
+  const attribute = userAttributeFor(username);
+  return {
+    username,
+    attribute,
+    delivery: attribute.Name === "phone_number" ? "phone" : "email"
+  };
 }
 
 function assertCredentials(username, password) {
@@ -164,8 +189,9 @@ export async function login({ identifier, email, password }) {
     }
   }));
   return {
-    ok: true,
-    tokens: response.AuthenticationResult
+    ok: Boolean(response.AuthenticationResult),
+    tokens: response.AuthenticationResult ?? null,
+    challengeName: response.ChallengeName ?? null
   };
 }
 

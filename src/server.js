@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp } from "./auth.js";
+import { approvePendingUpdate, listPendingUpdates, refreshSourceChecks, rejectPendingUpdate } from "./dataStore.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
 
 const PORT = Number(process.env.PORT || 3000);
@@ -62,7 +63,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "OPTIONS") {
       res.writeHead(204, {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization"
       });
       res.end();
@@ -109,6 +110,32 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/plan/stream") {
       await writeEventStream(req, res);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/admin/pending-updates") {
+      await requireAuth(req);
+      writeJson(res, 200, { updates: listPendingUpdates() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/admin/approve-update") {
+      const user = await requireAuth(req);
+      const body = await readJson(req);
+      writeJson(res, 200, { update: approvePendingUpdate(body.id, user.email || user.sub || "admin") });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/admin/reject-update") {
+      const user = await requireAuth(req);
+      const body = await readJson(req);
+      writeJson(res, 200, { update: rejectPendingUpdate(body.id, user.email || user.sub || "admin", body.reason || "") });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/admin/refresh-sources") {
+      await requireAuth(req);
+      writeJson(res, 200, await refreshSourceChecks());
       return;
     }
 

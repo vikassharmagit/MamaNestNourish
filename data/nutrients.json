@@ -1,0 +1,66 @@
+{
+  "reviewStatus": "approved",
+  "lastCheckedAt": "2026-06-05",
+  "lastReviewedAt": "2026-06-05",
+  "sourceUrls": [
+    "https://www.acog.org/womens-health/faqs/healthy-eating-during-pregnancy",
+    "https://www.niddk.nih.gov/health-information/weight-management/healthy-eating-physical-activity-for-life/health-tips-for-pregnant-women",
+    "https://www.nhs.uk/pregnancy/keeping-well/foods-to-avoid/"
+  ],
+  "healthyFocus": [
+    "Include pasteurized milk, curd, yogurt, cheese, or calcium-fortified soy alternatives for calcium and protein.",
+    "Rotate legumes, dairy/curd, tofu/paneer, eggs, poultry, or low-mercury fish according to diet.",
+    "Use varied vegetables and fruit across colors during the week.",
+    "Prefer whole grains such as oats, brown rice, millet, dalia, chapati, and idli/dosa batter."
+  ],
+  "nutritionRecommendations": {
+    "vegetarianDairy": "Pasteurized milk, curd, yogurt, paneer, cheese, or calcium-fortified soy milk.",
+    "nonVegetarianDairy": "Pasteurized milk, curd, yogurt, cheese, eggs, lean protein, or calcium-fortified soy milk.",
+    "groups": [
+      {
+        "title": "Milk and calcium",
+        "items": [
+          "{{dairy}}",
+          "Prefer pasteurized dairy; use lower-fat/lower-sugar choices when suitable.",
+          "If dairy-free, choose unsweetened calcium-fortified soy drinks or yogurt."
+        ]
+      },
+      {
+        "title": "Daily healthy foods",
+        "items": [
+          "5 portions of varied fruit and vegetables.",
+          "Whole grains such as oats, brown rice, millet, chapati, dalia, and wholemeal bread.",
+          "Protein foods such as dal, beans, tofu, paneer, eggs, poultry, fish, nuts/seeds if not allergic."
+        ]
+      },
+      {
+        "title": "Key nutrients",
+        "items": [
+          "Iron: beans, peas, leafy greens, fortified cereals, poultry/fish/meat if eaten.",
+          "Vitamin D: fortified milk, egg yolk, low-mercury fatty fish if eaten, plus clinician-advised supplement.",
+          "Choline: milk, eggs, soy foods, beans, and peanuts if not allergic."
+        ]
+      }
+    ]
+  },
+  "micronutrients": {
+    "firstTrimester": "First trimester focus: folate, iodine, vitamin D, and nausea-tolerant iron/protein foods.",
+    "secondTrimester": "Second trimester focus: iron, calcium, vitamin D, iodine, choline, omega-3, and steady protein for fetal growth.",
+    "thirdTrimester": "Third trimester focus: iron, calcium, vitamin D, iodine, choline, omega-3, hydration, and protein for growth and recovery.",
+    "items": [
+      "Folate/folic acid: supports neural-tube and placental development; continue prenatal vitamin as clinician advised.",
+      "Iron: supports expanding blood volume and helps lower anemia risk; pair beans/greens/fortified cereals with vitamin C foods.",
+      "Calcium: supports fetal bones and teeth; include pasteurized milk, curd/yogurt, paneer, cheese, or fortified soy alternatives.",
+      "Vitamin D: helps calcium absorption and bone health; use fortified foods and clinician-advised supplementation if needed.",
+      "Iodine: supports fetal brain and thyroid development; use iodized salt in clinician-appropriate amounts.",
+      "Choline: supports fetal brain development; sources include milk, eggs, soy foods, beans, and peanuts if not allergic.",
+      "Omega-3 DHA: supports brain and eye development; consider low-mercury fish if eaten or clinician-approved vegetarian DHA."
+    ],
+    "precautions": [
+      "Do not start high-dose supplements without clinician approval.",
+      "Avoid retinol/high-dose vitamin A supplements in pregnancy unless specifically prescribed.",
+      "If hypertension, diabetes, anemia, thyroid disease, vomiting, or food restrictions are present, ask the clinician to individualize supplements."
+    ],
+    "sourceBasis": "Based on guideline-level pregnancy nutrition themes from ACOG, NHS, and public health prenatal nutrition guidance."
+  }
+}

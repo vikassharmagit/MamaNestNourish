@@ -48,6 +48,30 @@ Invoke-WebRequest -Uri "http://localhost:3000/api/plan/stream" -Method Post -Bod
 npm test
 ```
 
+## Data Update Workflow
+
+The planner uses approved recommendation data from `data/*.json` instead of hardcoded meal, snack, exercise, nutrient, safety, and fetal-growth libraries in code.
+
+- `data/meals.json`, `data/snacks.json`, and `data/exercises.json` contain approved planning options.
+- `data/nutrients.json`, `data/safety-rules.json`, and `data/fetal-growth.json` contain approved guidance and comparison data.
+- `data/sources.json` tracks trusted source URLs, last check metadata, and review requirements.
+- `data/pending-updates.json` stores source changes or proposed records that require review.
+
+Run source checks with:
+
+```powershell
+npm run update:sources
+```
+
+This checks trusted source metadata and creates pending review items. Medical guidance is not auto-applied; approved data changes must be reviewed first.
+
+Protected review endpoints:
+
+- `GET /api/admin/pending-updates`
+- `POST /api/admin/approve-update` with `{ "id": "pending-update-id" }`
+- `POST /api/admin/reject-update` with `{ "id": "pending-update-id", "reason": "..." }`
+- `POST /api/admin/refresh-sources`
+
 ## Cognito Authentication
 
 Set these environment variables to enable AWS Cognito authentication:

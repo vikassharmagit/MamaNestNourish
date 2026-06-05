@@ -1,0 +1,30 @@
+[
+  {
+    "id": "routine-prenatal-review",
+    "severity": "green",
+    "conditionIncludes": [],
+    "description": "Plan uses conservative pregnancy activity and nutrition defaults.",
+    "immediateAction": "Continue routine prenatal follow-up.",
+    "recommendedOwner": "user",
+    "urgency": "days",
+    "rationale": "Routine monitoring is consistent with guideline-level antenatal care.",
+    "sourceUrls": ["https://www.acog.org/womens-health/faqs/having-a-baby"],
+    "lastCheckedAt": "2026-06-05",
+    "lastReviewedAt": "2026-06-05",
+    "reviewStatus": "approved"
+  },
+  {
+    "id": "gestational-hypertension",
+    "severity": "yellow",
+    "conditionIncludes": ["hypertension"],
+    "description": "Gestational hypertension can change exercise, diet, and monitoring needs.",
+    "immediateAction": "Consult your clinician before increasing exercise intensity; seek urgent care for severe headache, visual symptoms, chest pain, severe swelling, or high blood pressure readings.",
+    "recommendedOwner": "clinician",
+    "urgency": "24-48 hours",
+    "rationale": "ACOG-style guidance treats hypertensive disorders in pregnancy as needing individualized clinician oversight.",
+    "sourceUrls": ["https://www.acog.org/womens-health/faqs/exercise-during-pregnancy"],
+    "lastCheckedAt": "2026-06-05",
+    "lastReviewedAt": "2026-06-05",
+    "reviewStatus": "approved"
+  }
+]
