@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeAuthIdentifier } from "../src/auth.js";
 import { loadApprovedPlanningData } from "../src/dataStore.js";
+import { createPlanDocumentXml } from "../src/docxExport.js";
 import { server } from "../src/server.js";
 import { runPregnancyPlan } from "../src/pregnancyAgent.js";
 
@@ -201,6 +202,7 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.match(pageHtml, /id="allergyChips"/);
     assert.match(pageHtml, /id="printPlanBtn"/);
     assert.match(pageHtml, /id="downloadPlanBtn"/);
+    assert.doesNotMatch(pageHtml, /id="regenerateBtn"/);
     assert.match(pageHtml, /<textarea id="profileText" readonly>/);
     assert.match(pageHtml, />Download<\/button>/);
 
@@ -244,6 +246,14 @@ test("server starts and allows local planning when Cognito is not configured", a
     );
     assert.equal(docx.subarray(0, 2).toString(), "PK");
     assert.match(docx.toString("latin1"), /word\/document\.xml/);
+
+    const documentXml = createPlanDocumentXml(events.at(-1).output);
+    assert.match(documentXml, /Today(&apos;|')s Plan/);
+    assert.match(documentXml, /Seven-Day Plan/);
+    assert.match(documentXml, /Healthy Variety Options/);
+    assert.match(documentXml, /Healthy Focus/);
+    assert.match(documentXml, /Milk and Healthy Food Recommendations/);
+    assert.match(documentXml, /Nutrition Recommendations/);
 
     const pendingResponse = await fetch(`${baseUrl}/api/admin/pending-updates`);
     assert.equal(pendingResponse.status, 200);
