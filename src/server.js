@@ -178,7 +178,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && (import.meta.url === pathToFileURL(process.argv[1]).href || process.env.pm_id)) {
   server.listen(PORT, () => {
     console.log(`Pregnancy planning API listening on http://localhost:${PORT}`);
   });
