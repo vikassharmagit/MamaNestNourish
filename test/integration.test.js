@@ -154,6 +154,10 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.equal(configResponse.status, 200);
     assert.equal((await configResponse.json()).configured, false);
 
+    const logoResponse = await fetch(`${baseUrl}/assets/MyPregLady.png`);
+    assert.equal(logoResponse.status, 200);
+    assert.equal(logoResponse.headers.get("content-type"), "image/png");
+
     const planResponse = await fetch(`${baseUrl}/api/plan/stream`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

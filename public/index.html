@@ -94,14 +94,11 @@
       }
 
       .mark {
-        display: grid;
-        place-items: center;
-        width: 40px;
-        height: 40px;
+        display: block;
+        width: 54px;
+        height: 54px;
+        object-fit: contain;
         border-radius: 8px;
-        background: #dff1ed;
-        box-shadow: inset 0 0 0 1px #c7d9e8;
-        color: var(--primary);
       }
 
       .status {
@@ -765,13 +762,7 @@
     <header>
       <div class="topbar">
         <div class="brand">
-          <div class="mark" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M12 21c4.2-2.8 7-6 7-10.2A6.8 6.8 0 0 0 12 4a6.8 6.8 0 0 0-7 6.8C5 15 7.8 18.2 12 21Z" fill="currentColor" opacity=".18" />
-              <path d="M8.3 11.2c1.9 3.8 5.5 4 7.4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-              <path d="M12 8.7v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </div>
+          <img class="mark" src="/assets/MyPregLady.png" alt="MyPregLady logo" />
           <span>MyPregLady</span>
         </div>
         <div class="auth-card" id="authCard">

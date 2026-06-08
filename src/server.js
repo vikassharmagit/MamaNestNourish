@@ -1,6 +1,6 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, extname, join, normalize, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp } from "./auth.js";
 import { approvePendingUpdate, listPendingUpdates, refreshSourceChecks, rejectPendingUpdate } from "./dataStore.js";
@@ -9,6 +9,16 @@ import { runPregnancyPlan } from "./pregnancyAgent.js";
 const PORT = Number(process.env.PORT || 3000);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = join(__dirname, "..", "public");
+const ASSETS_DIR = join(PUBLIC_DIR, "assets");
+
+const CONTENT_TYPES = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon"
+};
 
 function readJson(req) {
   return new Promise((resolve, reject) => {
@@ -56,6 +66,23 @@ function writeJson(res, statusCode, body) {
   res.end(JSON.stringify(body));
 }
 
+async function writeStaticAsset(req, res, pathname) {
+  const assetName = decodeURIComponent(pathname.replace("/assets/", ""));
+  const assetPath = normalize(join(ASSETS_DIR, assetName));
+  if (!assetPath.startsWith(`${ASSETS_DIR}${sep}`)) {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ error: "Not found" }));
+    return;
+  }
+
+  const content = await readFile(assetPath);
+  res.writeHead(200, {
+    "Content-Type": CONTENT_TYPES[extname(assetPath).toLowerCase()] || "application/octet-stream",
+    "Cache-Control": "public, max-age=86400"
+  });
+  res.end(req.method === "HEAD" ? undefined : content);
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
@@ -80,6 +107,11 @@ const server = http.createServer(async (req, res) => {
     if ((req.method === "GET" || req.method === "HEAD") && url.pathname === "/health") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(req.method === "HEAD" ? undefined : JSON.stringify({ ok: true }));
+      return;
+    }
+
+    if ((req.method === "GET" || req.method === "HEAD") && url.pathname.startsWith("/assets/")) {
+      await writeStaticAsset(req, res, url.pathname);
       return;
     }
 
