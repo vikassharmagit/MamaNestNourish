@@ -1221,8 +1221,8 @@
           <div class="form-step" data-step="3">
             <label>
               Profile notes
-              <textarea id="profileText"></textarea>
-              <span class="field-note">Review or adjust the generated profile summary before creating the plan.</span>
+              <textarea id="profileText" readonly></textarea>
+              <span class="field-note">This summary is generated from the previous steps.</span>
             </label>
             <div class="step-actions">
               <button class="prevStepBtn secondary-btn" type="button">Back</button>
@@ -1276,6 +1276,7 @@
       let currentStep = 0;
       let selectedAllergies = [];
       let lastPlanData = null;
+      let planGenerated = false;
 
       function authHeader() {
         return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
@@ -1299,6 +1300,13 @@
         });
         document.querySelectorAll("[data-step-pill]").forEach((pill) => {
           pill.classList.toggle("active", Number(pill.dataset.stepPill) === currentStep);
+        });
+        updateBackButtons();
+      }
+
+      function updateBackButtons() {
+        document.querySelectorAll(".prevStepBtn").forEach((button) => {
+          button.hidden = planGenerated;
         });
       }
 
@@ -1788,6 +1796,8 @@
 
       output.addEventListener("click", (event) => {
         if (event.target.closest("#editProfileBtn")) {
+          planGenerated = false;
+          updateBackButtons();
           setStep(0);
           document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -1798,14 +1808,28 @@
           window.print();
         }
         if (event.target.closest("#downloadPlanBtn") && lastPlanData) {
-          const blob = new Blob([JSON.stringify(lastPlanData, null, 2)], { type: "application/json" });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = `MamaNestNourish-week-${lastPlanData.profile.gestationalWeek || "plan"}.json`;
-          link.click();
-          URL.revokeObjectURL(link.href);
+          downloadPlanDocx().catch((error) => {
+            runState.textContent = error.message;
+          });
         }
       });
+
+      async function downloadPlanDocx() {
+        const response = await fetch("/api/plan/docx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeader() },
+          body: JSON.stringify({ plan: lastPlanData })
+        });
+        if (!response.ok) {
+          throw new Error(`Download failed: ${response.status}`);
+        }
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `MamaNestNourish-week-${lastPlanData.profile.gestationalWeek ?? "plan"}.docx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
 
       function eventRow(event) {
         const message = event.message || event.summary || event.delta || `${event.tool || event.type} completed`;
@@ -1836,6 +1860,8 @@
       function renderDone(done, events) {
         const data = done.output;
         lastPlanData = data;
+        planGenerated = true;
+        updateBackButtons();
         if (!data.targets) {
           output.innerHTML = `
             <div class="checklist">
@@ -1868,7 +1894,7 @@
             <button id="editProfileBtn" class="secondary-btn" type="button">Edit profile</button>
             <button id="regenerateBtn" type="button">Regenerate plan</button>
             <button id="printPlanBtn" class="secondary-btn" type="button">Print plan</button>
-            <button id="downloadPlanBtn" class="secondary-btn" type="button">Download JSON</button>
+            <button id="downloadPlanBtn" class="secondary-btn" type="button">Download</button>
           </div>
           <div class="today-dashboard">
             ${babySizeCard(data.babySize)}

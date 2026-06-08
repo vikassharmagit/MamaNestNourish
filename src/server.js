@@ -4,6 +4,7 @@ import { dirname, extname, join, normalize, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp } from "./auth.js";
 import { approvePendingUpdate, listPendingUpdates, refreshSourceChecks, rejectPendingUpdate } from "./dataStore.js";
+import { createPlanDocx } from "./docxExport.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
 
 const PORT = Number(process.env.PORT || 3000);
@@ -64,6 +65,20 @@ function writeJson(res, statusCode, body) {
     "Access-Control-Allow-Origin": "*"
   });
   res.end(JSON.stringify(body));
+}
+
+async function writePlanDocx(req, res) {
+  await requireAuth(req);
+  const body = await readJson(req);
+  const plan = body.plan || body;
+  const docx = createPlanDocx(plan);
+  const week = plan.profile?.gestationalWeek ?? "plan";
+  res.writeHead(200, {
+    "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "Content-Disposition": `attachment; filename="MamaNestNourish-week-${week}.docx"`,
+    "Access-Control-Allow-Origin": "*"
+  });
+  res.end(docx);
 }
 
 async function writeStaticAsset(req, res, pathname) {
@@ -142,6 +157,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/plan/stream") {
       await writeEventStream(req, res);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/plan/docx") {
+      await writePlanDocx(req, res);
       return;
     }
 

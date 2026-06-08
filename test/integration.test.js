@@ -201,6 +201,8 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.match(pageHtml, /id="allergyChips"/);
     assert.match(pageHtml, /id="printPlanBtn"/);
     assert.match(pageHtml, /id="downloadPlanBtn"/);
+    assert.match(pageHtml, /<textarea id="profileText" readonly>/);
+    assert.match(pageHtml, />Download<\/button>/);
 
     const logoResponse = await fetch(`${baseUrl}/assets/MamaNestNourish.png`);
     assert.equal(logoResponse.status, 200);
@@ -228,6 +230,20 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.equal(planResponse.status, 200);
     assert.equal(events.at(-1).type, "done");
     assert.equal(events.at(-1).summary, "Plan complete");
+
+    const docxResponse = await fetch(`${baseUrl}/api/plan/docx`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ plan: events.at(-1).output })
+    });
+    const docx = Buffer.from(await docxResponse.arrayBuffer());
+    assert.equal(docxResponse.status, 200);
+    assert.equal(
+      docxResponse.headers.get("content-type"),
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+    assert.equal(docx.subarray(0, 2).toString(), "PK");
+    assert.match(docx.toString("latin1"), /word\/document\.xml/);
 
     const pendingResponse = await fetch(`${baseUrl}/api/admin/pending-updates`);
     assert.equal(pendingResponse.status, 200);
