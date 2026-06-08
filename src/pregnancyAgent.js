@@ -19,6 +19,15 @@ const ACTIVITY_METS = {
   active: [3, 5]
 };
 
+const ALLERGEN_TERMS = {
+  dairy: ["dairy", "milk", "curd", "yogurt", "yoghurt", "paneer", "cheese", "raita"],
+  egg: ["egg", "eggs", "omelet", "omelette", "bhurji"],
+  fish: ["fish", "seafood"],
+  chicken: ["chicken", "poultry"],
+  peanut: ["peanut", "peanuts"],
+  nuts: ["nut", "nuts", "almond", "cashew", "walnut"]
+};
+
 function normalizeStringArray(value) {
   if (!value) return [];
   const rawValues = Array.isArray(value) ? value : String(value).split(/[,;]/);
@@ -127,11 +136,104 @@ function scaleMeal(meal, targets) {
   };
 }
 
+function allergySet(profile) {
+  return profile.allergies.map((allergy) => allergy.toLowerCase());
+}
+
+function hasAllergy(profile, allergen) {
+  const allergies = allergySet(profile);
+  const terms = ALLERGEN_TERMS[allergen] || [allergen];
+  if (allergen === "nuts") {
+    return allergies.some((allergy) =>
+      !allergy.includes("peanut") && terms.some((term) => allergy.includes(term))
+    );
+  }
+  return allergies.some((allergy) => terms.some((term) => allergy.includes(term)));
+}
+
+function hasTextAllergen(text, profile, allergen) {
+  if (!hasAllergy(profile, allergen)) return false;
+  const lower = String(text || "").toLowerCase();
+  return (ALLERGEN_TERMS[allergen] || [allergen]).some((term) => lower.includes(term));
+}
+
+function allergyText(item) {
+  return [item.name, item.portionNotes, ...(item.allergens || [])].filter(Boolean).join(" ");
+}
+
+function isAllergySafe(item, profile) {
+  const text = allergyText(item);
+  return !["egg", "fish", "chicken", "peanut", "nuts"].some((allergen) =>
+    hasTextAllergen(text, profile, allergen)
+  );
+}
+
+function adaptAllergyText(text, profile) {
+  let safeText = String(text || "");
+
+  if (hasAllergy(profile, "dairy")) {
+    safeText = safeText
+      .replace(/\bcalcium-fortified soy milk\b/gi, "calcium-fortified soy beverage")
+      .replace(/\bpasteurized milk\b/gi, "calcium-fortified soy beverage")
+      .replace(/\bmilk\b/gi, "calcium-fortified soy beverage")
+      .replace(/\bcurd\b/gi, "soy cultured alternative")
+      .replace(/\byogurt\b/gi, "soy cultured alternative")
+      .replace(/\byoghurt\b/gi, "soy cultured alternative")
+      .replace(/\bpaneer\b/gi, "tofu")
+      .replace(/\bcheese\b/gi, "plant-based calcium alternative")
+      .replace(/\braita\b/gi, "seasoned soy cultured side")
+      .replace(/\bdairy\/curd\b/gi, "soy cultured alternative")
+      .replace(/\bdairy\b(?!-free)/gi, "calcium-fortified dairy-free alternatives");
+  }
+
+  if (hasAllergy(profile, "peanut") || hasAllergy(profile, "nuts")) {
+    safeText = safeText
+      .replace(/\bpeanuts?\b/gi, "seeds or roasted chana if tolerated")
+      .replace(/\bnuts\/seeds\b/gi, "seeds or roasted chana if tolerated")
+      .replace(/\bnuts\b/gi, "seeds or roasted chana if tolerated");
+  }
+
+  if (hasAllergy(profile, "egg")) {
+    safeText = safeText
+      .replace(/\beggs?\b/gi, "dal, tofu, beans, or other tolerated protein")
+      .replace(/\begg yolk\b/gi, "fortified foods or clinician-advised supplement");
+  }
+
+  if (hasAllergy(profile, "fish")) {
+    safeText = safeText
+      .replace(/\blow-mercury fish\b/gi, "clinician-approved omega-3 alternative")
+      .replace(/\bfish\b/gi, "clinician-approved omega-3 alternative")
+      .replace(/\bseafood\b/gi, "clinician-approved omega-3 alternative");
+  }
+
+  if (hasAllergy(profile, "chicken")) {
+    safeText = safeText
+      .replace(/\bchicken\b/gi, "dal, beans, tofu, or other tolerated protein")
+      .replace(/\bpoultry\b/gi, "dal, beans, tofu, or other tolerated protein");
+  }
+
+  return safeText;
+}
+
+function adaptFoodItem(item, profile) {
+  return {
+    ...item,
+    name: adaptAllergyText(item.name, profile),
+    portionNotes: adaptAllergyText(item.portionNotes, profile),
+    allergyNotes: profile.allergies.length
+      ? `Adjusted for listed allergies: ${profile.allergies.join(", ")}.`
+      : undefined
+  };
+}
+
 function mealLibrary(profile) {
   const { meals } = loadApprovedPlanningData();
   const diet = String(profile.dietaryPreferences).toLowerCase();
-  const byType = (mealType) =>
-    meals.filter((meal) => meal.mealType === mealType && meal.dietTypes.includes(diet));
+  const byType = (mealType) => {
+    const dietMatches = meals.filter((meal) => meal.mealType === mealType && meal.dietTypes.includes(diet));
+    const safeMatches = dietMatches.filter((meal) => isAllergySafe(meal, profile));
+    return (safeMatches.length ? safeMatches : dietMatches).map((meal) => adaptFoodItem(meal, profile));
+  };
 
   return {
     breakfast: byType("breakfast"),
@@ -165,7 +267,9 @@ function mealSet(profile, targets, dayIndex) {
 function snackSet(profile, dayIndex) {
   const { snacks } = loadApprovedPlanningData();
   const diet = String(profile.dietaryPreferences).toLowerCase();
-  const options = snacks.filter((snack) => snack.dietTypes.includes(diet));
+  const dietMatches = snacks.filter((snack) => snack.dietTypes.includes(diet));
+  const safeMatches = dietMatches.filter((snack) => isAllergySafe(snack, profile));
+  const options = (safeMatches.length ? safeMatches : dietMatches).map((snack) => adaptFoodItem(snack, profile));
 
   const first = options[(dayIndex - 1) % options.length];
   const second = options[(dayIndex + 1) % options.length];
@@ -208,7 +312,10 @@ function optionBank(profile) {
     lunch: library.lunch.map((meal) => meal.name),
     dinner: library.dinner.map((meal) => meal.name),
     snacks: snackSet(profile, 1).map((snack) => snack.name),
-    healthyFocus: nutrients.healthyFocus
+    healthyFocus: nutrients.healthyFocus.map((item) => adaptAllergyText(item, profile)),
+    allergyNotes: profile.allergies.length
+      ? [`Avoid listed allergens in all swaps and packaged foods: ${profile.allergies.join(", ")}.`]
+      : []
   };
 }
 
@@ -230,12 +337,14 @@ function babySizeForWeek(week = 0) {
 
 function nutritionRecommendations(profile) {
   const { nutrients } = loadApprovedPlanningData();
-  const dairy = String(profile.dietaryPreferences).toLowerCase() === "vegetarian"
+  const dairy = hasAllergy(profile, "dairy")
+    ? "Calcium-fortified soy beverage, soy cultured alternatives, tofu, or other clinician-approved dairy-free calcium options."
+    : String(profile.dietaryPreferences).toLowerCase() === "vegetarian"
     ? nutrients.nutritionRecommendations.vegetarianDairy
     : nutrients.nutritionRecommendations.nonVegetarianDairy;
   return nutrients.nutritionRecommendations.groups.map((group) => ({
     title: group.title,
-    items: group.items.map((item) => item.replace("{{dairy}}", dairy)),
+    items: group.items.map((item) => adaptAllergyText(item.replace("{{dairy}}", dairy), profile)),
     sourceUrls: nutrients.sourceUrls,
     lastReviewedAt: nutrients.lastReviewedAt
   }));
@@ -253,7 +362,7 @@ function micronutrientRecommendations(profile) {
   return {
     title: `Week ${week} vitamins and minerals`,
     summary: trimesterFocus,
-    items: nutrients.micronutrients.items,
+    items: nutrients.micronutrients.items.map((item) => adaptAllergyText(item, profile)),
     precautions: nutrients.micronutrients.precautions,
     sourceBasis: nutrients.micronutrients.sourceBasis,
     sourceUrls: nutrients.sourceUrls,

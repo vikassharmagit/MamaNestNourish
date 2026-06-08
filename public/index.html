@@ -1308,10 +1308,13 @@
               <div>
                 <strong>${meal.name}</strong><br />
                 ${meal.calories} kcal, ${meal.proteinG}g protein. ${meal.portionNotes}
+                ${meal.allergyNotes ? `<br /><em>${meal.allergyNotes}</em>` : ""}
               </div>
             </div>
           `);
-          const snacks = dailyPlan.snacks.map((snack) => `${snack.time} ${snack.name}`).join("; ");
+          const snacks = dailyPlan.snacks.map((snack) =>
+            `${snack.time} ${snack.name}${snack.allergyNotes ? ` (${snack.allergyNotes})` : ""}`
+          ).join("; ");
           const exerciseSteps = exercise.steps || [];
           return `
             <article class="day">
@@ -1343,6 +1346,7 @@
           <div class="focus-card">
             <h3>Healthy focus</h3>
             <ul>${options.healthyFocus.map((item) => `<li>${item}</li>`).join("")}</ul>
+            ${options.allergyNotes?.length ? `<ul>${options.allergyNotes.map((item) => `<li>${item}</li>`).join("")}</ul>` : ""}
           </div>
         `;
         const micro = data.micronutrientRecommendations;

@@ -146,6 +146,45 @@ test("non-vegetarian diet uses non-vegetarian meal suggestions", async () => {
   assert.match(done.output.weeklyPlan[0].dailyPlan.optionBank.lunch.join(" "), /chicken|fish/i);
 });
 
+test("diet plan text respects listed allergies across recommendations", async () => {
+  const events = [];
+  for await (const event of runPregnancyPlan({
+    gestationalWeek: 22,
+    age: 29,
+    heightCm: 165,
+    weightKg: 68,
+    activityLevel: "moderate",
+    dietaryPreferences: "non_vegetarian",
+    conditions: [],
+    allergies: ["dairy", "egg", "fish", "peanuts"]
+  })) {
+    events.push(event);
+  }
+
+  const done = events.find((event) => event.type === "done");
+  const firstPlan = done.output.weeklyPlan[0].dailyPlan;
+  const weeklyText = done.output.weeklyPlan
+    .flatMap(({ dailyPlan }) => [
+      ...dailyPlan.meals.map((meal) => `${meal.name} ${meal.portionNotes}`),
+      ...dailyPlan.snacks.map((snack) => `${snack.name} ${snack.portionNotes}`),
+      ...dailyPlan.optionBank.breakfast,
+      ...dailyPlan.optionBank.lunch,
+      ...dailyPlan.optionBank.dinner,
+      ...dailyPlan.optionBank.snacks,
+      ...dailyPlan.optionBank.healthyFocus
+    ])
+    .join(" ");
+  const recommendationText = [
+    ...done.output.nutritionRecommendations.flatMap((group) => group.items),
+    ...done.output.micronutrientRecommendations.items
+  ].join(" ");
+
+  assert.doesNotMatch(weeklyText, /\b(egg|fish|peanuts?|milk|curd|yogurt|paneer|cheese)\b/i);
+  assert.doesNotMatch(recommendationText, /\b(egg|fish|peanuts?|milk|curd|yogurt|paneer|cheese)\b/i);
+  assert.ok(firstPlan.optionBank.allergyNotes.some((note) => note.includes("dairy")));
+  assert.match(weeklyText, /soy|tofu|omega-3 alternative|seeds/i);
+});
+
 test("server starts and allows local planning when Cognito is not configured", async () => {
   const address = await listen(server);
   try {
