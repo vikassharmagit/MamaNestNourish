@@ -1,4 +1,4 @@
-# MyPregLady
+# MamaNestNourish
 
 Streaming pregnancy-plan API based on the provided Pregnant Women Scope agent specification.
 

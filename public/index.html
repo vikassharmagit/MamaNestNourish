@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyPregLady</title>
+    <title>MamaNestNourish</title>
     <style>
       :root {
         color-scheme: light;
@@ -762,8 +762,8 @@
     <header>
       <div class="topbar">
         <div class="brand">
-          <img class="mark" src="/assets/MyPregLady.png" alt="MyPregLady logo" />
-          <span>MyPregLady</span>
+          <img class="mark" src="/assets/MamaNestNourish.png" alt="MamaNestNourish logo" />
+          <span>MamaNestNourish</span>
         </div>
         <div class="auth-card" id="authCard">
           <div class="status">Week-by-week pregnancy planning API demo</div>
@@ -939,7 +939,7 @@
       const progressBar = document.querySelector("#progressBar");
       const submitBtn = document.querySelector("#submitBtn");
       let authConfigured = false;
-      let authTokens = JSON.parse(localStorage.getItem("mypregladyTokens") || "null");
+      let authTokens = JSON.parse(localStorage.getItem("mamanestnourishTokens") || "null");
       let pendingSignupIdentifier = "";
 
       function authHeader() {
@@ -1189,7 +1189,7 @@
           });
           if (data.tokens?.IdToken) {
             authTokens = data.tokens;
-            localStorage.setItem("mypregladyTokens", JSON.stringify(authTokens));
+            localStorage.setItem("mamanestnourishTokens", JSON.stringify(authTokens));
             hideSignupConfirmation();
             updateAuthUi();
             return;
@@ -1246,7 +1246,7 @@
             password: value("#authPassword")
           });
           authTokens = data.tokens;
-          localStorage.setItem("mypregladyTokens", JSON.stringify(authTokens));
+          localStorage.setItem("mamanestnourishTokens", JSON.stringify(authTokens));
           updateAuthUi();
         } catch (error) {
           setAuthMessage(error.message);
@@ -1257,7 +1257,7 @@
 
       document.querySelector("#logoutBtn").addEventListener("click", () => {
         authTokens = null;
-        localStorage.removeItem("mypregladyTokens");
+        localStorage.removeItem("mamanestnourishTokens");
         updateAuthUi();
       });
 
