@@ -193,6 +193,15 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.equal(configResponse.status, 200);
     assert.equal((await configResponse.json()).configured, false);
 
+    const pageResponse = await fetch(`${baseUrl}/`);
+    const pageHtml = await pageResponse.text();
+    assert.equal(pageResponse.status, 200);
+    assert.match(pageHtml, /data-step="0"/);
+    assert.match(pageHtml, /id="conditionChips"/);
+    assert.match(pageHtml, /id="allergyChips"/);
+    assert.match(pageHtml, /id="printPlanBtn"/);
+    assert.match(pageHtml, /id="downloadPlanBtn"/);
+
     const logoResponse = await fetch(`${baseUrl}/assets/MamaNestNourish.png`);
     assert.equal(logoResponse.status, 200);
     assert.equal(logoResponse.headers.get("content-type"), "image/png");

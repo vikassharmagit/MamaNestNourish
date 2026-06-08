@@ -267,6 +267,118 @@
         margin-top: 18px;
       }
 
+      .stepper {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 16px;
+      }
+
+      .step-pill {
+        display: grid;
+        gap: 3px;
+        min-height: 54px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f8fbfd;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      .step-pill span {
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #e6eff5;
+        color: var(--primary);
+      }
+
+      .step-pill.active {
+        border-color: #b8d2e8;
+        background: #edf5fb;
+        color: var(--ink);
+      }
+
+      .step-pill.active span {
+        background: var(--primary);
+        color: #ffffff;
+      }
+
+      .form-step {
+        display: none;
+        gap: 14px;
+      }
+
+      .form-step.active {
+        display: grid;
+      }
+
+      .step-actions,
+      .result-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .step-actions {
+        justify-content: space-between;
+        padding-top: 4px;
+      }
+
+      .secondary-btn {
+        border: 1px solid #b8cedd;
+        background: #ffffff;
+        color: var(--primary);
+        box-shadow: none;
+      }
+
+      .secondary-btn:hover {
+        background: #edf5fb;
+      }
+
+      .chip-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid #cbd8d4;
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .chip {
+        min-height: 34px;
+        border: 1px solid #cbd8d4;
+        border-radius: 999px;
+        padding: 0 12px;
+        background: #f8fbfd;
+        color: #344541;
+        box-shadow: none;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .chip:hover {
+        background: #edf5fb;
+      }
+
+      .chip.selected {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: #ffffff;
+      }
+
+      .inline-add {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+      }
+
       label {
         display: grid;
         gap: 6px;
@@ -304,6 +416,15 @@
 
       select[multiple] {
         min-height: 154px;
+      }
+
+      .native-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
       }
 
       .grid {
@@ -464,6 +585,52 @@
         color: var(--muted);
       }
 
+      .timeline {
+        display: grid;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdfc;
+      }
+
+      .timeline-step {
+        display: grid;
+        grid-template-columns: 24px 1fr;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .timeline-step::before {
+        content: "";
+        width: 14px;
+        height: 14px;
+        border: 2px solid #c7dbea;
+        border-radius: 50%;
+        background: #ffffff;
+      }
+
+      .timeline-step.active {
+        color: var(--primary);
+        font-weight: 750;
+      }
+
+      .timeline-step.active::before {
+        border-color: var(--primary);
+        background: var(--primary);
+      }
+
+      .timeline-step.done {
+        color: var(--accent-dark);
+      }
+
+      .timeline-step.done::before {
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
       .alert {
         border: 1px solid #f2c66d;
         border-radius: 8px;
@@ -471,6 +638,60 @@
         background: #fff9e8;
         color: var(--warn);
         font-weight: 650;
+      }
+
+      .safety-banner {
+        border: 1px solid #efd89b;
+        border-left: 6px solid var(--highlight);
+        border-radius: 8px;
+        padding: 12px;
+        background: #fffaf0;
+        color: #60461f;
+      }
+
+      .safety-banner strong {
+        display: block;
+        color: #4b3515;
+      }
+
+      .today-dashboard {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.1fr) minmax(220px, 1fr);
+        gap: 12px;
+      }
+
+      .today-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 14px;
+        box-shadow: 0 12px 26px rgba(35, 70, 63, 0.06);
+      }
+
+      .today-card h3 {
+        margin-bottom: 8px;
+      }
+
+      .today-list {
+        display: grid;
+        gap: 8px;
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .hydration-track {
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e7efed;
+      }
+
+      .hydration-track span {
+        display: block;
+        width: 72%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
       }
 
       .summary-grid {
@@ -702,7 +923,8 @@
         main,
         .summary-grid,
         .days,
-        .option-grid {
+        .option-grid,
+        .today-dashboard {
           grid-template-columns: 1fr;
         }
 
@@ -731,6 +953,14 @@
           grid-template-columns: 1fr;
         }
 
+        .stepper {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .inline-add {
+          grid-template-columns: 1fr;
+        }
+
         .profile-grid .age-field:last-child {
           grid-column: auto;
         }
@@ -754,6 +984,35 @@
 
         .progress {
           width: 100%;
+        }
+      }
+
+      @media print {
+        header,
+        .panel,
+        .result-actions,
+        details {
+          display: none !important;
+        }
+
+        body,
+        main,
+        .result-panel,
+        .content {
+          display: block;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          background: #ffffff;
+          box-shadow: none;
+          border: 0;
+        }
+
+        .days,
+        .option-grid,
+        .summary-grid,
+        .today-dashboard {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -790,113 +1049,149 @@
     <main>
       <section class="panel">
         <h1>Build a safe weekly plan</h1>
-        <p>Enter the essentials and generate a structured plan with streamed progress, safety flags, targets, meals, hydration, and exercise guidance.</p>
+        <p>Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.</p>
+
+        <div class="stepper" aria-label="Plan setup steps">
+          <div class="step-pill active" data-step-pill="0"><span>1</span>Pregnancy</div>
+          <div class="step-pill" data-step-pill="1"><span>2</span>Health</div>
+          <div class="step-pill" data-step-pill="2"><span>3</span>Food</div>
+          <div class="step-pill" data-step-pill="3"><span>4</span>Review</div>
+        </div>
 
         <form id="planForm">
-          <div class="grid profile-grid">
-            <label class="date-field">
-              Last period date
-              <input id="lastPeriodDate" type="date" />
-              <span id="gestationalAgeNote" class="field-note">Select the first day of the last period.</span>
+          <div class="form-step active" data-step="0">
+            <div class="grid profile-grid">
+              <label class="date-field">
+                Last period date
+                <input id="lastPeriodDate" type="date" />
+                <span id="gestationalAgeNote" class="field-note">Select the first day of the last period.</span>
+              </label>
+              <label class="date-field calculated-field">
+                Week and day
+                <input id="gestationalAgeDisplay" value="0 weeks 0 days" readonly />
+                <input id="gestationalWeek" type="hidden" value="0" />
+                <input id="gestationalDay" type="hidden" value="0" />
+              </label>
+              <label class="age-field">
+                Age
+                <input id="age" type="number" min="12" max="60" value="29" />
+              </label>
+              <label class="age-field">
+                Height cm
+                <div class="height-row">
+                  <input id="heightValue" type="number" min="1" step="0.1" value="165" />
+                  <select id="heightUnit" aria-label="Height unit">
+                    <option value="cm" selected>cm</option>
+                    <option value="ft">ft/in</option>
+                  </select>
+                </div>
+                <span id="heightNote" class="field-note">165 cm</span>
+                <input id="heightCm" type="hidden" value="165" />
+              </label>
+              <label class="age-field">
+                Weight kg
+                <input id="weightKg" type="number" min="30" max="220" value="68" />
+              </label>
+            </div>
+            <div class="step-actions">
+              <span class="field-note">Step 1 of 4</span>
+              <button class="nextStepBtn" type="button">Next</button>
+            </div>
+          </div>
+
+          <div class="form-step" data-step="1">
+            <label>
+              Conditions
+              <select id="conditions" class="native-hidden" multiple tabindex="-1">
+                <option value="none" selected>No known condition</option>
+                <option value="gestational_hypertension">Gestational hypertension</option>
+                <option value="chronic_hypertension">Chronic hypertension</option>
+                <option value="preeclampsia_risk">Preeclampsia risk</option>
+                <option value="gestational_diabetes">Gestational diabetes</option>
+                <option value="type_1_diabetes">Type 1 diabetes</option>
+                <option value="type_2_diabetes">Type 2 diabetes</option>
+                <option value="anemia">Anemia</option>
+                <option value="thyroid_disorder">Thyroid disorder</option>
+                <option value="asthma">Asthma</option>
+                <option value="placenta_previa">Placenta previa</option>
+                <option value="previous_preterm_birth">Previous preterm birth</option>
+                <option value="multiple_pregnancy">Multiple pregnancy</option>
+                <option value="obesity">Obesity</option>
+                <option value="underweight">Underweight</option>
+                <option value="hyperemesis_gravidarum">Hyperemesis gravidarum</option>
+                <option value="pelvic_girdle_pain">Pelvic girdle pain</option>
+                <option value="back_pain">Back pain</option>
+                <option value="history_of_miscarriage">History of miscarriage</option>
+                <option value="ivf_pregnancy">IVF pregnancy</option>
+              </select>
+              <div id="conditionChips" class="chip-group" aria-label="Condition choices"></div>
             </label>
-            <label class="date-field calculated-field">
-              Week and day
-              <input id="gestationalAgeDisplay" value="0 weeks 0 days" readonly />
-              <input id="gestationalWeek" type="hidden" value="0" />
-              <input id="gestationalDay" type="hidden" value="0" />
-            </label>
-            <label class="age-field">
-              Age
-              <input id="age" type="number" min="12" max="60" value="29" />
-            </label>
-            <label class="age-field">
-              Height cm
-              <div class="height-row">
-                <input id="heightValue" type="number" min="1" step="0.1" value="165" />
-                <select id="heightUnit" aria-label="Height unit">
-                  <option value="cm" selected>cm</option>
-                  <option value="ft">ft/in</option>
-                </select>
+
+            <label>
+              Allergies
+              <input id="allergies" class="native-hidden" value="none" tabindex="-1" />
+              <div id="allergyChips" class="chip-group" aria-label="Allergy choices"></div>
+              <div class="inline-add">
+                <input id="customAllergy" type="text" placeholder="Add another allergy" />
+                <button id="addAllergyBtn" class="secondary-btn" type="button">Add</button>
               </div>
-              <span id="heightNote" class="field-note">165 cm</span>
-              <input id="heightCm" type="hidden" value="165" />
+              <span class="field-note">Selected allergies are used across meals, snacks, healthy focus, and recommendations.</span>
             </label>
-            <label class="age-field">
-              Weight kg
-              <input id="weightKg" type="number" min="30" max="220" value="68" />
-            </label>
+            <div class="step-actions">
+              <button class="prevStepBtn secondary-btn" type="button">Back</button>
+              <button class="nextStepBtn" type="button">Next</button>
+            </div>
           </div>
 
-          <div class="grid">
+          <div class="form-step" data-step="2">
+            <div class="grid">
+              <label>
+                Activity
+                <select id="activityLevel">
+                  <option value="sedentary">Sedentary</option>
+                  <option value="light">Light</option>
+                  <option value="moderate" selected>Moderate</option>
+                  <option value="active">Active</option>
+                </select>
+              </label>
+              <label>
+                Diet
+                <select id="dietaryPreferences">
+                  <option value="vegetarian" selected>Vegetarian</option>
+                  <option value="non_vegetarian">Non-vegetarian</option>
+                  <option value="eggitarian">Eggitarian</option>
+                </select>
+              </label>
+            </div>
+
             <label>
-              Activity
-              <select id="activityLevel">
-                <option value="sedentary">Sedentary</option>
-                <option value="light">Light</option>
-                <option value="moderate" selected>Moderate</option>
-                <option value="active">Active</option>
+              Work style
+              <select id="workStyle">
+                <option value="I work a desk job" selected>Desk job</option>
+                <option value="I stand or walk for long hours">Standing or walking long hours</option>
+                <option value="I do light physical work">Light physical work</option>
+                <option value="I do shift work">Shift work</option>
+                <option value="I work from home">Work from home</option>
+                <option value="I am mostly resting at home">Mostly resting at home</option>
               </select>
             </label>
-            <label>
-              Diet
-              <select id="dietaryPreferences">
-                <option value="vegetarian" selected>Vegetarian</option>
-                <option value="non_vegetarian">Non-vegetarian</option>
-                <option value="eggitarian">Eggitarian</option>
-              </select>
-            </label>
+            <div class="step-actions">
+              <button class="prevStepBtn secondary-btn" type="button">Back</button>
+              <button class="nextStepBtn" type="button">Next</button>
+            </div>
           </div>
 
-          <label>
-            Conditions
-            <select id="conditions" multiple>
-              <option value="none" selected>No known condition</option>
-              <option value="gestational_hypertension">Gestational hypertension</option>
-              <option value="chronic_hypertension">Chronic hypertension</option>
-              <option value="preeclampsia_risk">Preeclampsia risk</option>
-              <option value="gestational_diabetes">Gestational diabetes</option>
-              <option value="type_1_diabetes">Type 1 diabetes</option>
-              <option value="type_2_diabetes">Type 2 diabetes</option>
-              <option value="anemia">Anemia</option>
-              <option value="thyroid_disorder">Thyroid disorder</option>
-              <option value="asthma">Asthma</option>
-              <option value="placenta_previa">Placenta previa</option>
-              <option value="previous_preterm_birth">Previous preterm birth</option>
-              <option value="multiple_pregnancy">Multiple pregnancy</option>
-              <option value="obesity">Obesity</option>
-              <option value="underweight">Underweight</option>
-              <option value="hyperemesis_gravidarum">Hyperemesis gravidarum</option>
-              <option value="pelvic_girdle_pain">Pelvic girdle pain</option>
-              <option value="back_pain">Back pain</option>
-              <option value="history_of_miscarriage">History of miscarriage</option>
-              <option value="ivf_pregnancy">IVF pregnancy</option>
-            </select>
-          </label>
-
-          <label>
-            Allergies
-            <input id="allergies" value="none" placeholder="e.g., peanuts" />
-            <span class="field-note">Example: peanuts. Leave as none if there are no known allergies.</span>
-          </label>
-
-          <label>
-            Work style
-            <select id="workStyle">
-              <option value="I work a desk job" selected>Desk job</option>
-              <option value="I stand or walk for long hours">Standing or walking long hours</option>
-              <option value="I do light physical work">Light physical work</option>
-              <option value="I do shift work">Shift work</option>
-              <option value="I work from home">Work from home</option>
-              <option value="I am mostly resting at home">Mostly resting at home</option>
-            </select>
-          </label>
-
-          <label>
-            Profile notes
-            <textarea id="profileText"></textarea>
-          </label>
-
-          <button id="submitBtn" type="submit">Generate plan</button>
+          <div class="form-step" data-step="3">
+            <label>
+              Profile notes
+              <textarea id="profileText"></textarea>
+              <span class="field-note">Review or adjust the generated profile summary before creating the plan.</span>
+            </label>
+            <div class="step-actions">
+              <button class="prevStepBtn secondary-btn" type="button">Back</button>
+              <button id="submitBtn" type="submit">Generate plan</button>
+            </div>
+          </div>
         </form>
       </section>
 
@@ -941,6 +1236,9 @@
       let authConfigured = false;
       let authTokens = JSON.parse(localStorage.getItem("mamanestnourishTokens") || "null");
       let pendingSignupIdentifier = "";
+      let currentStep = 0;
+      let selectedAllergies = [];
+      let lastPlanData = null;
 
       function authHeader() {
         return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
@@ -955,6 +1253,87 @@
           const element = document.querySelector(selector);
           if (element) element.disabled = isBusy;
         });
+      }
+
+      function setStep(index) {
+        currentStep = Math.max(0, Math.min(3, index));
+        document.querySelectorAll("[data-step]").forEach((step) => {
+          step.classList.toggle("active", Number(step.dataset.step) === currentStep);
+        });
+        document.querySelectorAll("[data-step-pill]").forEach((pill) => {
+          pill.classList.toggle("active", Number(pill.dataset.stepPill) === currentStep);
+        });
+      }
+
+      function renderConditionChips() {
+        const select = document.querySelector("#conditions");
+        const container = document.querySelector("#conditionChips");
+        container.innerHTML = Array.from(select.options).map((option) => `
+          <button class="chip ${option.selected ? "selected" : ""}" type="button" data-condition="${option.value}">
+            ${option.textContent}
+          </button>
+        `).join("");
+      }
+
+      function syncConditionChips() {
+        renderConditionChips();
+        updateProfileNotes();
+      }
+
+      function setAllergyInputValue() {
+        document.querySelector("#allergies").value = selectedAllergies.length ? selectedAllergies.join(", ") : "none";
+      }
+
+      function renderAllergyChips() {
+        const defaults = ["none", "peanuts", "dairy", "egg", "fish", "shellfish", "tree nuts", "soy", "gluten"];
+        const allItems = [...new Set([...defaults, ...selectedAllergies])];
+        document.querySelector("#allergyChips").innerHTML = allItems.map((item) => {
+          const selected = item === "none" ? !selectedAllergies.length : selectedAllergies.includes(item);
+          return `
+            <button class="chip ${selected ? "selected" : ""}" type="button" data-allergy="${item}">
+              ${item === "none" ? "No known allergy" : item}
+            </button>
+          `;
+        }).join("");
+      }
+
+      function syncAllergyChips() {
+        setAllergyInputValue();
+        renderAllergyChips();
+        updateProfileNotes();
+      }
+
+      function timelineHtml(activeKey = "extractProfile") {
+        const steps = [
+          ["extractProfile", "Reading profile"],
+          ["safety", "Checking safety"],
+          ["generateDailyPlan", "Preparing meals and exercise"],
+          ["done", "Building weekly plan"]
+        ];
+        const activeIndex = Math.max(0, steps.findIndex(([key]) => key === activeKey));
+        return `
+          <div class="timeline" aria-label="Plan generation progress">
+            ${steps.map(([key, label], index) => `
+              <div class="timeline-step ${index < activeIndex ? "done" : index === activeIndex ? "active" : ""}" data-timeline="${key}">
+                ${label}
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }
+
+      function updateTimeline(event) {
+        const key = event.type === "done"
+          ? "done"
+          : event.type === "safety.alert"
+            ? "safety"
+            : event.tool === "generateDailyPlan"
+              ? "generateDailyPlan"
+              : event.tool || "extractProfile";
+        const timeline = output.querySelector(".timeline");
+        if (timeline) {
+          timeline.outerHTML = timelineHtml(key);
+        }
       }
 
       function showSignupConfirmation(identifier) {
@@ -1172,7 +1551,69 @@
         document.querySelector(selector).addEventListener("change", updateProfileNotes);
       });
 
+      document.querySelectorAll(".nextStepBtn").forEach((button) => {
+        button.addEventListener("click", () => setStep(currentStep + 1));
+      });
+
+      document.querySelectorAll(".prevStepBtn").forEach((button) => {
+        button.addEventListener("click", () => setStep(currentStep - 1));
+      });
+
+      document.querySelector("#conditionChips").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-condition]");
+        if (!button) return;
+        const select = document.querySelector("#conditions");
+        const value = button.dataset.condition;
+        const option = select.querySelector(`option[value="${value}"]`);
+        if (!option) return;
+
+        if (value === "none") {
+          Array.from(select.options).forEach((item) => {
+            item.selected = item.value === "none";
+          });
+        } else {
+          option.selected = !option.selected;
+          select.querySelector('option[value="none"]').selected = false;
+        }
+        syncConditionSelection();
+        syncConditionChips();
+      });
+
+      document.querySelector("#allergyChips").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-allergy]");
+        if (!button) return;
+        const allergy = button.dataset.allergy;
+        if (allergy === "none") {
+          selectedAllergies = [];
+        } else if (selectedAllergies.includes(allergy)) {
+          selectedAllergies = selectedAllergies.filter((item) => item !== allergy);
+        } else {
+          selectedAllergies.push(allergy);
+        }
+        syncAllergyChips();
+      });
+
+      document.querySelector("#addAllergyBtn").addEventListener("click", () => {
+        const input = document.querySelector("#customAllergy");
+        const allergy = input.value.trim().toLowerCase();
+        if (allergy && allergy !== "none" && !selectedAllergies.includes(allergy)) {
+          selectedAllergies.push(allergy);
+        }
+        input.value = "";
+        syncAllergyChips();
+      });
+
+      document.querySelector("#customAllergy").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          document.querySelector("#addAllergyBtn").click();
+        }
+      });
+
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
+      renderConditionChips();
+      renderAllergyChips();
+      setAllergyInputValue();
       updateProfileNotes();
       loadAuthConfig();
 
@@ -1261,6 +1702,27 @@
         updateAuthUi();
       });
 
+      output.addEventListener("click", (event) => {
+        if (event.target.closest("#editProfileBtn")) {
+          setStep(0);
+          document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        if (event.target.closest("#regenerateBtn")) {
+          form.requestSubmit();
+        }
+        if (event.target.closest("#printPlanBtn")) {
+          window.print();
+        }
+        if (event.target.closest("#downloadPlanBtn") && lastPlanData) {
+          const blob = new Blob([JSON.stringify(lastPlanData, null, 2)], { type: "application/json" });
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = `MamaNestNourish-week-${lastPlanData.profile.gestationalWeek || "plan"}.json`;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
+      });
+
       function eventRow(event) {
         const message = event.message || event.summary || event.delta || `${event.tool || event.type} completed`;
         return `<div class="event"><strong>${event.type}</strong> ${message}</div>`;
@@ -1289,6 +1751,7 @@
 
       function renderDone(done, events) {
         const data = done.output;
+        lastPlanData = data;
         if (!data.targets) {
           output.innerHTML = `
             <div class="checklist">
@@ -1299,6 +1762,42 @@
           `;
           return;
         }
+
+        const today = data.weeklyPlan[0].dailyPlan;
+        const todayExercise = today.exercise[0];
+        const todayMeals = today.meals.map((meal) => `
+          <div><strong>${meal.time}</strong> ${meal.name}</div>
+        `).join("");
+        const safetyBanner = data.riskRegister.length ? `
+          <div class="safety-banner">
+            <strong>Review this with your care provider</strong>
+            ${data.riskRegister[0].description} ${data.riskRegister[0].immediateAction}
+          </div>
+        ` : `
+          <div class="safety-banner">
+            <strong>No major risk flag was found from the details provided</strong>
+            Keep using this as educational guidance and contact your care provider for new symptoms or concerns.
+          </div>
+        `;
+        const dashboard = `
+          <div class="result-actions">
+            <button id="editProfileBtn" class="secondary-btn" type="button">Edit profile</button>
+            <button id="regenerateBtn" type="button">Regenerate plan</button>
+            <button id="printPlanBtn" class="secondary-btn" type="button">Print plan</button>
+            <button id="downloadPlanBtn" class="secondary-btn" type="button">Download JSON</button>
+          </div>
+          <div class="today-dashboard">
+            ${babySizeCard(data.babySize)}
+            <div class="today-card">
+              <h3>Today's plan</h3>
+              <div class="today-list">${todayMeals}</div>
+              <p><strong>Exercise:</strong> ${todayExercise.durationMin} min ${todayExercise.activity}</p>
+              <p><strong>Hydration:</strong> ${data.targets.hydrationLiters}L across the day</p>
+              <div class="hydration-track" aria-label="Hydration progress preview"><span></span></div>
+            </div>
+          </div>
+          ${safetyBanner}
+        `;
 
         const days = data.weeklyPlan.map(({ dayIndex, dailyPlan }) => {
           const exercise = dailyPlan.exercise[0];
@@ -1367,7 +1866,7 @@
         `);
 
         output.innerHTML = `
-          ${babySizeCard(data.babySize)}
+          ${dashboard}
           <div class="summary-grid">
             <div class="metric"><span>Gestational age</span><strong>${data.profile.gestationalAgeLabel || `${data.profile.gestationalWeek}w ${data.profile.gestationalDay || 0}d`}</strong></div>
             <div class="metric"><span>BMR</span><strong>${data.targets.bmrKcal}</strong></div>
@@ -1375,7 +1874,6 @@
             <div class="metric"><span>Protein</span><strong>${data.targets.recommendedDailyProteinG}g</strong></div>
             <div class="metric"><span>Hydration</span><strong>${data.targets.hydrationLiters}L</strong></div>
           </div>
-          ${data.riskRegister.length ? `<div class="alert">${data.riskRegister[0].description} ${data.riskRegister[0].immediateAction}</div>` : ""}
           <div>
             <h3>Healthy variety options</h3>
             <div class="option-grid">${optionCards.join("")}</div>
@@ -1404,7 +1902,10 @@
         submitBtn.disabled = true;
         runState.textContent = "Generating plan...";
         progressBar.style.width = "8%";
-        output.innerHTML = `<div class="event-list"></div>`;
+        output.innerHTML = `
+          ${timelineHtml("extractProfile")}
+          <div class="event-list"></div>
+        `;
 
         try {
           const response = await fetch("/api/plan/stream", {
@@ -1431,6 +1932,7 @@
               if (!line.trim()) continue;
               const parsed = JSON.parse(line);
               events.push(parsed);
+              updateTimeline(parsed);
               if (parsed.progress) {
                 progressBar.style.width = `${Math.min(100, Math.round(parsed.progress * 100))}%`;
               }
