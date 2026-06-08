@@ -486,6 +486,10 @@
         gap: 8px;
       }
 
+      .height-row.ft-mode {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 92px;
+      }
+
       .height-row input,
       .height-row select {
         height: 42px;
@@ -1112,6 +1116,7 @@
                 Height cm
                 <div class="height-row">
                   <input id="heightValue" type="number" min="1" step="0.1" value="165" />
+                  <input id="heightInches" type="number" min="0" max="11" step="1" value="0" aria-label="Height inches" hidden />
                   <select id="heightUnit" aria-label="Height unit">
                     <option value="cm" selected>cm</option>
                     <option value="ft">ft/in</option>
@@ -1440,14 +1445,55 @@
         return value.replaceAll("_", " ");
       }
 
+      function cmToFeetInches(cm) {
+        const totalInches = Math.max(0, Math.round(Number(cm || 0) / 2.54));
+        return {
+          feet: Math.floor(totalInches / 12),
+          inches: totalInches % 12
+        };
+      }
+
+      function syncHeightUnitFields() {
+        const unit = value("#heightUnit");
+        const heightRow = document.querySelector(".height-row");
+        const heightValue = document.querySelector("#heightValue");
+        const heightInches = document.querySelector("#heightInches");
+
+        if (unit === "ft") {
+          const currentCm = Number(document.querySelector("#heightCm").value || heightValue.value);
+          const converted = cmToFeetInches(currentCm);
+          heightValue.value = converted.feet || 5;
+          heightValue.min = 1;
+          heightValue.max = 8;
+          heightValue.step = 1;
+          heightValue.setAttribute("aria-label", "Height feet");
+          heightInches.value = converted.inches;
+          heightInches.hidden = false;
+          heightRow.classList.add("ft-mode");
+        } else {
+          const feet = Number(heightValue.value);
+          const inches = Number(heightInches.value);
+          const existingCm = Number(document.querySelector("#heightCm").value);
+          heightValue.value = existingCm || Math.round(feet * 30.48 + inches * 2.54) || 165;
+          heightValue.min = 1;
+          heightValue.removeAttribute("max");
+          heightValue.step = 0.1;
+          heightValue.setAttribute("aria-label", "Height centimeters");
+          heightInches.hidden = true;
+          heightRow.classList.remove("ft-mode");
+        }
+      }
+
       function updateHeightCm() {
         const rawHeight = Number(value("#heightValue"));
         const unit = value("#heightUnit");
+        const heightInches = document.querySelector("#heightInches");
         let heightCm = rawHeight;
 
         if (unit === "ft") {
-          const feet = Math.floor(rawHeight);
-          const inches = Math.round((rawHeight - feet) * 10);
+          const feet = Math.max(0, Math.floor(rawHeight));
+          const inches = Math.min(11, Math.max(0, Math.round(Number(heightInches.value || 0))));
+          heightInches.value = inches;
           heightCm = feet * 30.48 + inches * 2.54;
           document.querySelector("#heightNote").textContent = `${feet} ft ${inches} in = ${Math.round(heightCm)} cm`;
         } else {
@@ -1571,7 +1617,7 @@
         "#lastPeriodDate",
         "#age",
         "#heightValue",
-        "#heightUnit",
+        "#heightInches",
         "#weightKg",
         "#activityLevel",
         "#dietaryPreferences",
@@ -1581,6 +1627,11 @@
       ].forEach((selector) => {
         document.querySelector(selector).addEventListener("input", updateProfileNotes);
         document.querySelector(selector).addEventListener("change", updateProfileNotes);
+      });
+
+      document.querySelector("#heightUnit").addEventListener("change", () => {
+        syncHeightUnitFields();
+        updateProfileNotes();
       });
 
       document.querySelectorAll(".nextStepBtn").forEach((button) => {
@@ -1643,6 +1694,7 @@
       });
 
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
+      syncHeightUnitFields();
       renderConditionChips();
       renderAllergyChips();
       setAllergyInputValue();
