@@ -1,7 +1,7 @@
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, extname, join, normalize, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp } from "./auth.js";
 import { approvePendingUpdate, listPendingUpdates, refreshSourceChecks, rejectPendingUpdate } from "./dataStore.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
@@ -178,7 +178,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   server.listen(PORT, () => {
     console.log(`Pregnancy planning API listening on http://localhost:${PORT}`);
   });
