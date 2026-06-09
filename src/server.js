@@ -2,10 +2,11 @@ import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { dirname, extname, join, normalize, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp } from "./auth.js";
+import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, signUp, verifyCognitoToken } from "./auth.js";
 import { approvePendingUpdate, listPendingUpdates, refreshSourceChecks, rejectPendingUpdate } from "./dataStore.js";
 import { createPlanDocx } from "./docxExport.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
+import { listUserRecords, recordAuthEvent, requireAdmin, saveUserPlan } from "./userStore.js";
 
 const PORT = Number(process.env.PORT || 3000);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +45,7 @@ function readJson(req) {
 }
 
 async function writeEventStream(req, res) {
-  await requireAuth(req);
+  const user = await requireAuth(req);
   const input = await readJson(req);
   res.writeHead(200, {
     "Content-Type": "application/x-ndjson; charset=utf-8",
@@ -54,9 +55,26 @@ async function writeEventStream(req, res) {
   });
 
   for await (const event of runPregnancyPlan(input)) {
+    if (event.type === "done" && event.summary === "Plan complete") {
+      saveUserPlan({ user, input, plan: event.output });
+    }
     res.write(`${JSON.stringify(event)}\n`);
   }
   res.end();
+}
+
+async function requireAdminFromRequest(req) {
+  const user = await requireAuth(req);
+  return requireAdmin(user);
+}
+
+async function userFromAuthResult(result) {
+  if (!result?.tokens?.IdToken) return {};
+  try {
+    return await verifyCognitoToken(result.tokens.IdToken);
+  } catch {
+    return {};
+  }
 }
 
 function writeJson(res, statusCode, body) {
@@ -136,12 +154,28 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/auth/signup") {
-      writeJson(res, 200, await signUp(await readJson(req)));
+      const body = await readJson(req);
+      const result = await signUp(body);
+      const user = await userFromAuthResult(result);
+      recordAuthEvent({
+        user,
+        identifier: body.identifier || body.email,
+        eventType: result.tokens?.IdToken ? "signup-login" : "signup-started",
+        confirmed: Boolean(result.confirmed || result.tokens?.IdToken)
+      });
+      writeJson(res, 200, result);
       return;
     }
 
     if (req.method === "POST" && url.pathname === "/api/auth/confirm") {
-      writeJson(res, 200, await confirmSignUp(await readJson(req)));
+      const body = await readJson(req);
+      const result = await confirmSignUp(body);
+      recordAuthEvent({
+        identifier: body.identifier || body.email,
+        eventType: "signup-confirmed",
+        confirmed: true
+      });
+      writeJson(res, 200, result);
       return;
     }
 
@@ -151,7 +185,16 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && url.pathname === "/api/auth/login") {
-      writeJson(res, 200, await login(await readJson(req)));
+      const body = await readJson(req);
+      const result = await login(body);
+      const user = await userFromAuthResult(result);
+      recordAuthEvent({
+        user,
+        identifier: body.identifier || body.email,
+        eventType: "login",
+        confirmed: Boolean(result.tokens?.IdToken)
+      });
+      writeJson(res, 200, result);
       return;
     }
 
@@ -166,27 +209,33 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && url.pathname === "/api/admin/pending-updates") {
-      await requireAuth(req);
+      await requireAdminFromRequest(req);
       writeJson(res, 200, { updates: listPendingUpdates() });
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/admin/users") {
+      await requireAdminFromRequest(req);
+      writeJson(res, 200, { users: listUserRecords() });
+      return;
+    }
+
     if (req.method === "POST" && url.pathname === "/api/admin/approve-update") {
-      const user = await requireAuth(req);
+      const user = await requireAdminFromRequest(req);
       const body = await readJson(req);
       writeJson(res, 200, { update: approvePendingUpdate(body.id, user.email || user.sub || "admin") });
       return;
     }
 
     if (req.method === "POST" && url.pathname === "/api/admin/reject-update") {
-      const user = await requireAuth(req);
+      const user = await requireAdminFromRequest(req);
       const body = await readJson(req);
       writeJson(res, 200, { update: rejectPendingUpdate(body.id, user.email || user.sub || "admin", body.reason || "") });
       return;
     }
 
     if (req.method === "POST" && url.pathname === "/api/admin/refresh-sources") {
-      await requireAuth(req);
+      await requireAdminFromRequest(req);
       writeJson(res, 200, await refreshSourceChecks());
       return;
     }

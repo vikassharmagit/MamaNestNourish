@@ -233,6 +233,15 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.equal(events.at(-1).type, "done");
     assert.equal(events.at(-1).summary, "Plan complete");
 
+    const usersResponse = await fetch(`${baseUrl}/api/admin/users`);
+    assert.equal(usersResponse.status, 200);
+    const usersBody = await usersResponse.json();
+    assert.ok(usersBody.users.some((user) =>
+      user.key === "local-dev" &&
+      user.lastProfile?.gestationalWeek === 22 &&
+      user.savedPlans?.[0]?.summary?.planDays === 7
+    ));
+
     const docxResponse = await fetch(`${baseUrl}/api/plan/docx`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

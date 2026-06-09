@@ -1,0 +1,63 @@
+Tools
+- Node.js for the backend/server
+- npm for package management and tests
+- PM2 on AWS to keep the app running
+- Playwright used for browser smoke testing
+- node --test for automated tests
+- PowerShell for local commands/deployment scripts
+
+Languages
+- JavaScript
+- HTML
+- CSS
+- JSON/NDJSON for API data and streaming plan events
+
+Frameworks
+- No heavy frontend framework like React/Angular/Vue
+- Plain HTML/CSS/JavaScript single-page app
+- Plain Node.js HTTP server, not Express
+
+Main Project Structure
+- public/index.html - frontend UI
+- src/server.js - backend HTTP server/API routes
+- src/pregnancyAgent.js - pregnancy plan generation logic
+- src/auth.js - authentication/Cognito logic
+- src/docxExport.js - Word .docx download generation
+- test/ - automated tests
+
+Connections / Integrations
+- GitHub repo: https://github.com/vikassharmagit/MamaNestNourish.git
+- AWS EC2 deployment: http://54.86.219.63
+- AWS Cognito for login/signup
+- PM2 process on AWS: mamanestnourish
+- Runtime user data store for saved login/profile/plan records
+- Admin-only user data API and dashboard panel
+
+Auth / Login
+- AWS Cognito User Pool is configured
+- Test login created/verified:
+  - Email: test@gmail.com
+  - Password: Test1234
+- Admin login created/configured:
+  - Email: admin@mamanestnourish.com
+  - Password: Admin1234
+- Admin access is controlled by the ADMIN_EMAILS environment variable
+
+Deployment Flow
+- Code is committed locally with Git
+- Pushed to GitHub main
+- Packaged and copied to AWS EC2
+- AWS runs npm ci --omit=dev
+- PM2 restarts src/server.js
+- Health check endpoint: /health
+- AWS stores user records outside the app folder so redeploys do not wipe them
+
+Current App Type
+A lightweight Node.js pregnancy nutrition planner web app with:
+- login/signup
+- profile wizard
+- allergy-aware diet planning
+- seven-day plan
+- exercise guidance
+- printable DOCX download
+- AWS-hosted live deployment

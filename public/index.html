@@ -191,7 +191,8 @@
       }
 
       .panel,
-      .result-panel {
+      .result-panel,
+      .admin-panel {
         background: rgba(255, 255, 255, 0.94);
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -204,12 +205,14 @@
         box-shadow: 0 18px 44px rgba(29, 64, 58, 0.08);
       }
 
-      .result-panel {
+      .result-panel,
+      .admin-panel {
         box-shadow: 0 18px 44px rgba(29, 64, 58, 0.08);
       }
 
       .panel::before,
-      .result-panel::before {
+      .result-panel::before,
+      .admin-panel::before {
         content: "";
         position: absolute;
         inset: 0 0 auto;
@@ -230,9 +233,51 @@
       }
 
       .panel > *,
-      .result-panel > * {
+      .result-panel > *,
+      .admin-panel > * {
         position: relative;
         z-index: 1;
+      }
+
+      .admin-panel {
+        grid-column: 1 / -1;
+        padding: 18px;
+      }
+
+      .admin-panel[hidden] {
+        display: none;
+      }
+
+      .admin-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .admin-record {
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) repeat(3, minmax(120px, auto));
+        gap: 10px;
+        align-items: start;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: #ffffff;
+      }
+
+      .admin-record span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      .admin-record strong,
+      .admin-record code {
+        display: block;
+        margin-top: 4px;
+        color: var(--ink);
+        overflow-wrap: anywhere;
       }
 
       h1,
@@ -978,6 +1023,10 @@
         .result-panel {
           min-height: 520px;
         }
+
+        .admin-record {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 560px) {
@@ -1273,6 +1322,17 @@
           </div>
         </div>
       </section>
+
+      <section id="adminPanel" class="admin-panel" hidden>
+        <div class="result-head">
+          <div>
+            <h2>Admin user data</h2>
+            <p id="adminState">No user records loaded.</p>
+          </div>
+          <button id="refreshAdminBtn" class="secondary-btn" type="button">Refresh</button>
+        </div>
+        <div id="adminUsers" class="admin-list"></div>
+      </section>
     </main>
 
     <script>
@@ -1288,9 +1348,23 @@
       let selectedAllergies = [];
       let lastPlanData = null;
       let planGenerated = false;
+      let adminLoaded = false;
 
       function authHeader() {
         return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
+      }
+
+      function escapeHtml(value = "") {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function formatDateTime(value) {
+        return value ? new Date(value).toLocaleString() : "Not available";
       }
 
       function setAuthMessage(message) {
@@ -1422,6 +1496,11 @@
         } else {
           setAuthMessage("Sign in with email or phone number, or create an account to generate a plan.");
         }
+        if (loggedIn && !adminLoaded) {
+          loadAdminUsers();
+        } else if (!loggedIn) {
+          hideAdminPanel();
+        }
       }
 
       async function authRequest(path, body) {
@@ -1433,6 +1512,63 @@
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Authentication failed");
         return data;
+      }
+
+      function hideAdminPanel() {
+        adminLoaded = false;
+        document.querySelector("#adminPanel").hidden = true;
+        document.querySelector("#adminUsers").innerHTML = "";
+      }
+
+      function renderAdminUsers(users) {
+        document.querySelector("#adminState").textContent = `${users.length} user record${users.length === 1 ? "" : "s"} stored.`;
+        document.querySelector("#adminUsers").innerHTML = users.length ? users.map((record) => {
+          const latestPlan = record.savedPlans?.[0];
+          const profile = latestPlan?.summary || {};
+          return `
+            <div class="admin-record">
+              <div>
+                <span>User</span>
+                <strong>${escapeHtml(record.user?.email || record.identifier || record.key)}</strong>
+                <code>${escapeHtml(record.key)}</code>
+              </div>
+              <div>
+                <span>Last login</span>
+                <strong>${escapeHtml(formatDateTime(record.lastAuthAt))}</strong>
+              </div>
+              <div>
+                <span>Last plan</span>
+                <strong>${escapeHtml(formatDateTime(record.lastPlanAt))}</strong>
+              </div>
+              <div>
+                <span>Profile</span>
+                <strong>${escapeHtml(profile.gestationalAge || "No plan yet")}</strong>
+                <code>${escapeHtml([profile.dietaryPreferences, ...(profile.conditions || []), ...(profile.allergies || [])].filter(Boolean).join(", ") || "No details")}</code>
+              </div>
+            </div>
+          `;
+        }).join("") : `<div class="empty"><p>No users have generated plans yet.</p></div>`;
+      }
+
+      async function loadAdminUsers(force = false) {
+        if (!authTokens?.IdToken) return;
+        if (adminLoaded && !force) return;
+        try {
+          const response = await fetch("/api/admin/users", {
+            headers: authHeader()
+          });
+          if (response.status === 403 || response.status === 401) {
+            hideAdminPanel();
+            return;
+          }
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Could not load admin data.");
+          adminLoaded = true;
+          document.querySelector("#adminPanel").hidden = false;
+          renderAdminUsers(data.users || []);
+        } catch {
+          hideAdminPanel();
+        }
       }
 
       async function loadAuthConfig() {
@@ -1720,6 +1856,10 @@
         }
       });
 
+      document.querySelector("#refreshAdminBtn").addEventListener("click", () => {
+        loadAdminUsers(true);
+      });
+
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
       syncHeightUnitFields();
       renderConditionChips();
@@ -1742,6 +1882,7 @@
           if (data.tokens?.IdToken) {
             authTokens = data.tokens;
             localStorage.setItem("mamanestnourishTokens", JSON.stringify(authTokens));
+            adminLoaded = false;
             hideSignupConfirmation();
             updateAuthUi();
             return;
@@ -1799,6 +1940,7 @@
           });
           authTokens = data.tokens;
           localStorage.setItem("mamanestnourishTokens", JSON.stringify(authTokens));
+          adminLoaded = false;
           updateAuthUi();
         } catch (error) {
           setAuthMessage(error.message);
@@ -1810,6 +1952,7 @@
       document.querySelector("#logoutBtn").addEventListener("click", () => {
         authTokens = null;
         localStorage.removeItem("mamanestnourishTokens");
+        hideAdminPanel();
         updateAuthUi();
       });
 
@@ -2018,6 +2161,7 @@
             <pre>${JSON.stringify(data, null, 2)}</pre>
           </details>
         `;
+        loadAdminUsers(true);
       }
 
       form.addEventListener("submit", async (event) => {
