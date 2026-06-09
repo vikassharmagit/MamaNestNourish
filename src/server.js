@@ -6,7 +6,7 @@ import { authConfig, confirmSignUp, login, requireAuth, resendConfirmationCode, 
 import { approvePendingUpdate, listPendingUpdates, refreshSourceChecks, rejectPendingUpdate } from "./dataStore.js";
 import { createPlanDocx } from "./docxExport.js";
 import { runPregnancyPlan } from "./pregnancyAgent.js";
-import { listUserRecords, recordAuthEvent, requireAdmin, saveUserPlan } from "./userStore.js";
+import { getUserRecord, listUserRecords, recordAuthEvent, requireAdmin, saveUserPlan } from "./userStore.js";
 
 const PORT = Number(process.env.PORT || 3000);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -205,6 +205,12 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/plan/docx") {
       await writePlanDocx(req, res);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/user/me") {
+      const user = await requireAuth(req);
+      writeJson(res, 200, { user: getUserRecord(user) });
       return;
     }
 

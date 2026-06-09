@@ -32,6 +32,7 @@ Connections / Integrations
 - PM2 process on AWS: mamanestnourish
 - Runtime user data store for saved login/profile/plan records
 - Admin-only user data API and dashboard panel
+- Returning users automatically load their latest saved input and generated plan after login
 
 Auth / Login
 - AWS Cognito User Pool is configured

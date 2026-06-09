@@ -151,3 +151,33 @@ export function listUserRecords() {
     }))
     .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
 }
+
+export function getUserRecord(user = {}) {
+  const store = readStore();
+  const key = userKey(user);
+  const record = store.users.find((item) => item.key === key);
+  if (!record) {
+    return {
+      key,
+      user: publicUser(user),
+      lastProfile: null,
+      lastPlanAt: null,
+      savedPlans: [],
+      planCount: 0
+    };
+  }
+
+  return {
+    key: record.key,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
+    identifier: record.identifier || null,
+    user: record.user || publicUser(user),
+    lastAuthAt: record.lastAuthAt || null,
+    lastAuthEvent: record.lastAuthEvent || null,
+    lastPlanAt: record.lastPlanAt || null,
+    lastProfile: record.lastProfile || null,
+    savedPlans: record.savedPlans || [],
+    planCount: (record.savedPlans || []).length
+  };
+}

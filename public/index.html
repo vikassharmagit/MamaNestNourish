@@ -1349,6 +1349,7 @@
       let lastPlanData = null;
       let planGenerated = false;
       let adminLoaded = false;
+      let savedUserLoaded = false;
 
       function authHeader() {
         return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
@@ -1501,6 +1502,9 @@
         } else if (!loggedIn) {
           hideAdminPanel();
         }
+        if (loggedIn && !savedUserLoaded) {
+          loadSavedUserData();
+        }
       }
 
       async function authRequest(path, body) {
@@ -1568,6 +1572,67 @@
           renderAdminUsers(data.users || []);
         } catch {
           hideAdminPanel();
+        }
+      }
+
+      function setSelectValue(selector, value) {
+        const select = document.querySelector(selector);
+        if (value && Array.from(select.options).some((option) => option.value === value)) {
+          select.value = value;
+        }
+      }
+
+      function restoreConditionValues(conditions = []) {
+        const selected = Array.isArray(conditions) ? conditions : [];
+        const select = document.querySelector("#conditions");
+        Array.from(select.options).forEach((option) => {
+          option.selected = selected.length ? selected.includes(option.value) : option.value === "none";
+        });
+        renderConditionChips();
+      }
+
+      function restoreInputs(input = {}) {
+        if (input.lastPeriodDate) document.querySelector("#lastPeriodDate").value = input.lastPeriodDate;
+        if (Number.isFinite(Number(input.age))) document.querySelector("#age").value = input.age;
+        if (Number.isFinite(Number(input.heightCm))) {
+          document.querySelector("#heightUnit").value = "cm";
+          document.querySelector("#heightCm").value = input.heightCm;
+          document.querySelector("#heightValue").value = input.heightCm;
+          syncHeightUnitFields();
+        }
+        if (Number.isFinite(Number(input.weightKg))) document.querySelector("#weightKg").value = input.weightKg;
+        setSelectValue("#activityLevel", input.activityLevel);
+        setSelectValue("#dietaryPreferences", input.dietaryPreferences);
+        if (input.workStyle) setSelectValue("#workStyle", input.workStyle);
+        restoreConditionValues(input.conditions || []);
+        selectedAllergies = Array.isArray(input.allergies) ? input.allergies : [];
+        syncAllergyChips();
+        updateProfileNotes();
+      }
+
+      function restoreSavedPlan(savedPlan) {
+        if (!savedPlan?.plan) return;
+        restoreInputs(savedPlan.input || {});
+        runState.textContent = `Loaded your last saved plan from ${formatDateTime(savedPlan.createdAt)}.`;
+        progressBar.style.width = "100%";
+        renderDone({ output: savedPlan.plan }, []);
+        setStep(0);
+      }
+
+      async function loadSavedUserData(force = false) {
+        if (!authTokens?.IdToken) return;
+        if (savedUserLoaded && !force) return;
+        try {
+          const response = await fetch("/api/user/me", {
+            headers: authHeader()
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || "Could not load saved profile.");
+          savedUserLoaded = true;
+          const latestPlan = data.user?.savedPlans?.[0];
+          if (latestPlan) restoreSavedPlan(latestPlan);
+        } catch {
+          savedUserLoaded = true;
         }
       }
 
@@ -1883,6 +1948,7 @@
             authTokens = data.tokens;
             localStorage.setItem("mamanestnourishTokens", JSON.stringify(authTokens));
             adminLoaded = false;
+            savedUserLoaded = false;
             hideSignupConfirmation();
             updateAuthUi();
             return;
@@ -1941,6 +2007,7 @@
           authTokens = data.tokens;
           localStorage.setItem("mamanestnourishTokens", JSON.stringify(authTokens));
           adminLoaded = false;
+          savedUserLoaded = false;
           updateAuthUi();
         } catch (error) {
           setAuthMessage(error.message);
@@ -1952,6 +2019,7 @@
       document.querySelector("#logoutBtn").addEventListener("click", () => {
         authTokens = null;
         localStorage.removeItem("mamanestnourishTokens");
+        savedUserLoaded = false;
         hideAdminPanel();
         updateAuthUi();
       });
