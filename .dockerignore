@@ -1,0 +1,14 @@
+.git
+.gitignore
+node_modules
+runtime
+coverage
+*.log
+.env
+.env.*
+Admin_details.txt
+Application_Process_details.txt
+Modifications.txt
+project_details.txt
+test
+README.md

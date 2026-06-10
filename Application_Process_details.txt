@@ -1,0 +1,96 @@
+Application Process Details
+
+AWS Instance
+- Public IP: 54.86.219.63
+- OS: Ubuntu 26.04 LTS
+- Kernel: Linux AWS kernel 7.0.0-1004-aws
+- Deployment user: ubuntu
+
+Installed Runtime / Tools
+- Node.js: v20.20.2
+- npm: 10.8.2
+- PM2: 7.0.1
+- nginx: 1.28.3
+- git: 2.53.0
+- Docker: 29.1.3
+- Docker Compose: 2.40.3
+
+Application Location
+- Main app folder: /home/ubuntu/MamaNestNourish
+- Node server entry file: /home/ubuntu/MamaNestNourish/src/server.js
+- Frontend UI file: /home/ubuntu/MamaNestNourish/public/index.html
+- Planning data files: /home/ubuntu/MamaNestNourish/data/*.json
+- Package files:
+  - /home/ubuntu/MamaNestNourish/package.json
+  - /home/ubuntu/MamaNestNourish/package-lock.json
+- Installed production dependencies: /home/ubuntu/MamaNestNourish/node_modules
+
+Runtime User Data
+- Saved user/profile/plan data file: /home/ubuntu/MamaNestNourish-runtime/user-records.json
+- Runtime data is stored outside the main app folder so deployments do not wipe saved user data.
+
+How The App Runs
+- The application is a Node.js app.
+- The live AWS deployment now runs as a Docker container.
+- Docker Compose file: /home/ubuntu/MamaNestNourish/docker-compose.yml
+- Docker image name: mamanestnourish:latest
+- Docker container name: mamanestnourish
+- Container start command: node src/server.js
+- Internal app URL: http://127.0.0.1:3000
+- Health endpoint: http://127.0.0.1:3000/health
+
+Public Traffic Flow
+- Browser opens: http://54.86.219.63
+- nginx listens on public port 80.
+- nginx forwards requests to the Node app on port 3000.
+
+nginx Proxy Configuration
+server {
+    listen 80;
+    server_name 54.86.219.63;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+Environment Variables Used By PM2
+- PORT=3000
+- COGNITO_REGION=us-east-1
+- COGNITO_USER_POOL_ID=us-east-1_UHtfb9llg
+- COGNITO_CLIENT_ID=6852oqkg22rilbn8nace83bk3t
+- ADMIN_EMAILS=admin@mamanestnourish.com
+- USER_STORE_FILE=/home/ubuntu/MamaNestNourish-runtime/user-records.json
+
+Deployment Method
+- The local project is packaged as a .tar.gz archive and copied to AWS.
+- The archive is extracted into: /home/ubuntu/MamaNestNourish
+- Docker builds the production image from Dockerfile:
+  docker compose build
+- Docker starts/restarts the app with:
+  docker compose up -d
+- The container restart policy is:
+  restart: unless-stopped
+- Docker service is enabled through systemd, so containers with restart policy can come back after instance reboot.
+
+Docker Deployment Option
+- The project includes Docker support.
+- Dockerfile builds a production Node.js 20 image.
+- docker-compose.yml runs the app on port 3000 and maps host port 3000 to container port 3000.
+- Container runtime data is mounted at:
+  ${MAMANEST_RUNTIME_DIR:-./runtime}:/app/runtime
+- Inside the container, saved user/profile/plan data is written to:
+  /app/runtime/user-records.json
+- On the current AWS instance, MAMANEST_RUNTIME_DIR should be set to:
+  /home/ubuntu/MamaNestNourish-runtime
+- The same image can be moved to a new EC2 instance, Amazon ECR, ECS, or App Runner.
+- On a new EC2 instance, the required setup becomes Docker, environment variables, persistent runtime storage, and nginx or an AWS load balancer.
+
+Legacy PM2 Note
+- PM2 is still installed on the instance but is no longer the active runtime for the app.
+- The previous PM2 process name was: mamanestnourish

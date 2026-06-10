@@ -1,0 +1,18 @@
+services:
+  mamanestnourish:
+    build:
+      context: .
+    image: mamanestnourish:latest
+    container_name: mamanestnourish
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      COGNITO_REGION: "${COGNITO_REGION:-}"
+      COGNITO_USER_POOL_ID: "${COGNITO_USER_POOL_ID:-}"
+      COGNITO_CLIENT_ID: "${COGNITO_CLIENT_ID:-}"
+      ADMIN_EMAILS: "${ADMIN_EMAILS:-}"
+      USER_STORE_FILE: "/app/runtime/user-records.json"
+    volumes:
+      - ${MAMANEST_RUNTIME_DIR:-./runtime}:/app/runtime

@@ -10,6 +10,48 @@ npm start
 
 The server listens on `http://localhost:3000`.
 
+## Run With Docker
+
+Build and run the application with Docker:
+
+```powershell
+docker compose up --build -d
+```
+
+The container exposes the app on `http://localhost:3000`.
+
+Runtime user/profile/plan data is stored outside the image in the mounted `runtime` folder:
+
+```text
+${MAMANEST_RUNTIME_DIR:-./runtime}/user-records.json -> /app/runtime/user-records.json
+```
+
+Set Cognito/admin values in your shell or a local `.env` file before starting the container:
+
+```powershell
+$env:COGNITO_REGION="us-east-1"
+$env:COGNITO_USER_POOL_ID="your-user-pool-id"
+$env:COGNITO_CLIENT_ID="your-app-client-id"
+$env:ADMIN_EMAILS="admin@mamanestnourish.com"
+$env:MAMANEST_RUNTIME_DIR="./runtime"
+docker compose up --build -d
+```
+
+On AWS, point `MAMANEST_RUNTIME_DIR` at the persistent runtime folder, for example:
+
+```bash
+export MAMANEST_RUNTIME_DIR=/home/ubuntu/MamaNestNourish-runtime
+docker compose up --build -d
+```
+
+Useful Docker commands:
+
+```powershell
+docker compose logs -f
+docker compose ps
+docker compose down
+```
+
 ## Endpoint
 
 `POST /api/plan/stream`
