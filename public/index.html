@@ -386,6 +386,14 @@
         padding-top: 4px;
       }
 
+      .step-actions .field-note {
+        margin-right: auto;
+      }
+
+      .step-actions button {
+        min-width: 112px;
+      }
+
       .secondary-btn {
         border: 1px solid #b8cedd;
         background: #ffffff;
@@ -1630,6 +1638,11 @@
         });
       }
 
+      function updateSubmitButton() {
+        const appUnlocked = authConfigured && Boolean(authTokens?.IdToken);
+        submitBtn.disabled = !appUnlocked || planGenerated;
+      }
+
       function renderConditionChips() {
         const select = document.querySelector("#conditions");
         const container = document.querySelector("#conditionChips");
@@ -1724,7 +1737,7 @@
         document.querySelector("#authInputs").hidden = !authConfigured || loggedIn;
         if (loggedIn || !authConfigured) document.querySelector("#confirmRow").hidden = true;
         document.querySelector("#logoutBtn").hidden = !loggedIn;
-        submitBtn.disabled = !appUnlocked;
+        updateSubmitButton();
         if (!authConfigured) {
           setAuthMessage(t("authNotConfigured"));
         } else if (loggedIn) {
@@ -1894,6 +1907,7 @@
         updateProfileNotes();
         setStep(0);
         updateBackButtons();
+        updateSubmitButton();
 
         runState.textContent = t("readyToGenerate");
         progressBar.style.width = "0%";
@@ -2304,6 +2318,7 @@
         if (event.target.closest("#editProfileBtn")) {
           planGenerated = false;
           updateBackButtons();
+          updateSubmitButton();
           setStep(0);
           document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -2368,6 +2383,7 @@
         lastPlanData = data;
         planGenerated = true;
         updateBackButtons();
+        updateSubmitButton();
         if (!data.targets) {
           output.innerHTML = `
             <div class="checklist">
@@ -2570,7 +2586,6 @@
           runState.textContent = t("couldNotGenerate");
           output.innerHTML = `<div class="alert">${error.message}</div>`;
         } finally {
-          submitBtn.disabled = false;
           updateAuthUi();
         }
       });
