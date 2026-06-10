@@ -2457,9 +2457,11 @@
         `);
         const focusCard = `
           <div class="focus-card">
-            <h3>${t("healthyFocus")}</h3>
-            <ul>${options.healthyFocus.map((item) => `<li>${item}</li>`).join("")}</ul>
-            ${options.allergyNotes?.length ? `<ul>${options.allergyNotes.map((item) => `<li>${item}</li>`).join("")}</ul>` : ""}
+            <details class="micro-details">
+              <summary>${t("healthyFocus")}</summary>
+              <ul>${options.healthyFocus.map((item) => `<li>${item}</li>`).join("")}</ul>
+              ${options.allergyNotes?.length ? `<ul>${options.allergyNotes.map((item) => `<li>${item}</li>`).join("")}</ul>` : ""}
+            </details>
           </div>
         `;
         const micro = data.micronutrientRecommendations;
@@ -2492,16 +2494,16 @@
             <h3>${t("healthyVarietyOptions")}</h3>
             <div class="option-grid">${optionCards.join("")}</div>
           </div>
-          ${focusCard}
           <div>
             <h3>${t("milkRecommendations")}</h3>
             <div class="option-grid">${nutritionCards.join("")}</div>
           </div>
-          ${microCard}
           <div>
             <h3>${t("sevenDayPlan")}</h3>
             <div class="days">${days.join("")}</div>
           </div>
+          ${focusCard}
+          ${microCard}
           <details>
             <summary>${t("machineJson")}</summary>
             <pre>${JSON.stringify(data, null, 2)}</pre>
