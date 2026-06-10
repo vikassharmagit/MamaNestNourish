@@ -1296,25 +1296,7 @@
             <div id="progressBar" class="bar"></div>
           </div>
         </div>
-        <div id="output" class="content">
-          <div class="empty">
-            <div>
-              <svg viewBox="0 0 220 150" role="img" aria-label="Calendar and care illustration">
-                <rect x="24" y="22" width="126" height="104" rx="8" fill="#ffffff" stroke="#bfd4cf" stroke-width="3" />
-                <path d="M24 46h126" stroke="#bfd4cf" stroke-width="3" />
-                <rect x="46" y="66" width="18" height="16" rx="3" fill="#cfe8e1" />
-                <rect x="76" y="66" width="18" height="16" rx="3" fill="#cfe8e1" />
-                <rect x="106" y="66" width="18" height="16" rx="3" fill="#3E7CB1" />
-                <rect x="46" y="94" width="18" height="16" rx="3" fill="#cfe8e1" />
-                <rect x="76" y="94" width="18" height="16" rx="3" fill="#cfe8e1" />
-                <path d="M170 112c16-12 26-26 26-44a24 24 0 0 0-48 0c0 18 10 32 22 44Z" fill="#f4d2a3" />
-                <path d="M158 70c7 12 18 13 25 0" stroke="#8f5a18" stroke-width="4" stroke-linecap="round" />
-              </svg>
-              <h3>No plan generated yet</h3>
-              <p>Submit the form to see streamed progress and the weekly plan.</p>
-            </div>
-          </div>
-        </div>
+        <div id="output" class="content"></div>
       </section>
 
       <section id="adminPanel" class="admin-panel" hidden>
@@ -1360,6 +1342,28 @@
 
       function formatDateTime(value) {
         return value ? new Date(value).toLocaleString() : "Not available";
+      }
+
+      function emptyOutputHtml() {
+        return `
+          <div class="empty">
+            <div>
+              <svg viewBox="0 0 220 150" role="img" aria-label="Calendar and care illustration">
+                <rect x="24" y="22" width="126" height="104" rx="8" fill="#ffffff" stroke="#bfd4cf" stroke-width="3" />
+                <path d="M24 46h126" stroke="#bfd4cf" stroke-width="3" />
+                <rect x="46" y="66" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <rect x="76" y="66" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <rect x="106" y="66" width="18" height="16" rx="3" fill="#3E7CB1" />
+                <rect x="46" y="94" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <rect x="76" y="94" width="18" height="16" rx="3" fill="#cfe8e1" />
+                <path d="M170 112c16-12 26-26 26-44a24 24 0 0 0-48 0c0 18 10 32 22 44Z" fill="#f4d2a3" />
+                <path d="M158 70c7 12 18 13 25 0" stroke="#8f5a18" stroke-width="4" stroke-linecap="round" />
+              </svg>
+              <h3>No plan generated yet</h3>
+              <p>Submit the form to see streamed progress and the weekly plan.</p>
+            </div>
+          </div>
+        `;
       }
 
       function setAuthMessage(message) {
@@ -1628,6 +1632,36 @@
         } catch {
           savedUserLoaded = true;
         }
+      }
+
+      function resetPlanner() {
+        planGenerated = false;
+        lastPlanData = null;
+        selectedAllergies = [];
+
+        document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
+        document.querySelector("#age").value = 29;
+        document.querySelector("#heightUnit").value = "cm";
+        document.querySelector("#heightCm").value = 165;
+        document.querySelector("#heightValue").value = 165;
+        document.querySelector("#heightInches").value = 0;
+        document.querySelector("#weightKg").value = 68;
+        document.querySelector("#activityLevel").value = "moderate";
+        document.querySelector("#dietaryPreferences").value = "vegetarian";
+        document.querySelector("#workStyle").value = "I work a desk job";
+        document.querySelector("#customAllergy").value = "";
+
+        restoreConditionValues([]);
+        syncHeightUnitFields();
+        syncAllergyChips();
+        updateProfileNotes();
+        setStep(0);
+        updateBackButtons();
+
+        runState.textContent = "Ready to generate.";
+        progressBar.style.width = "0%";
+        output.innerHTML = emptyOutputHtml();
+        document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
       async function loadAuthConfig() {
@@ -1920,6 +1954,7 @@
       });
 
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
+      output.innerHTML = emptyOutputHtml();
       syncHeightUnitFields();
       renderConditionChips();
       renderAllergyChips();
@@ -2033,6 +2068,9 @@
             runState.textContent = error.message;
           });
         }
+        if (event.target.closest("#resetPlanBtn")) {
+          resetPlanner();
+        }
       });
 
       async function downloadPlanDocx() {
@@ -2115,6 +2153,7 @@
             <button id="editProfileBtn" class="secondary-btn" type="button">Edit profile</button>
             <button id="printPlanBtn" class="secondary-btn" type="button">Print plan</button>
             <button id="downloadPlanBtn" class="secondary-btn" type="button">Download</button>
+            <button id="resetPlanBtn" class="secondary-btn" type="button">Reset</button>
           </div>
           <div class="today-dashboard">
             ${babySizeCard(data.babySize)}

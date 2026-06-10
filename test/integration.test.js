@@ -208,6 +208,7 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.match(pageHtml, /id="allergyChips"/);
     assert.match(pageHtml, /id="printPlanBtn"/);
     assert.match(pageHtml, /id="downloadPlanBtn"/);
+    assert.match(pageHtml, /id="resetPlanBtn"/);
     assert.doesNotMatch(pageHtml, /id="regenerateBtn"/);
     assert.match(pageHtml, /<textarea id="profileText" readonly>/);
     assert.match(pageHtml, />Download<\/button>/);
