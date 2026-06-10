@@ -205,6 +205,7 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.doesNotMatch(pageHtml, /data-step="3"/);
     assert.doesNotMatch(pageHtml, />Review<\/div>/);
     assert.match(pageHtml, /id="languageSelect"/);
+    assert.match(pageHtml, /#languageSelect"\)\.hidden = appUnlocked/);
     assert.match(pageHtml, /id="conditionChips"/);
     assert.match(pageHtml, /id="allergyChips"/);
     assert.match(pageHtml, /id="printPlanBtn"/);

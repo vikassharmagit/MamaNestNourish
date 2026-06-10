@@ -1719,6 +1719,7 @@
         const appUnlocked = authConfigured && loggedIn;
         document.body.classList.toggle("auth-locked", !appUnlocked);
         document.querySelector("#authCard").hidden = appUnlocked;
+        document.querySelector("#languageSelect").hidden = appUnlocked;
         document.querySelector("#authInputs").hidden = !authConfigured || loggedIn;
         if (loggedIn || !authConfigured) document.querySelector("#confirmRow").hidden = true;
         document.querySelector("#logoutBtn").hidden = !loggedIn;
