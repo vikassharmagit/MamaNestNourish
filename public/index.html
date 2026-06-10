@@ -1625,7 +1625,8 @@
 
       function updateBackButtons() {
         document.querySelectorAll(".prevStepBtn").forEach((button) => {
-          button.hidden = planGenerated;
+          const step = button.closest("[data-step]");
+          button.hidden = planGenerated || Number(step?.dataset.step || 0) === 0;
         });
       }
 
