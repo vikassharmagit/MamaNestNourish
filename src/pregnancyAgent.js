@@ -1,4 +1,5 @@
 import { loadApprovedPlanningData } from "./dataStore.js";
+import { sanitizePlanForAllergies } from "./allergySafety.js";
 
 const DISCLAIMER =
   "Educational guidance only; this is not a substitute for professional medical advice. For urgent symptoms or moderate/high-risk findings, contact a qualified healthcare provider immediately.";
@@ -22,10 +23,13 @@ const ACTIVITY_METS = {
 const ALLERGEN_TERMS = {
   dairy: ["dairy", "milk", "curd", "yogurt", "yoghurt", "paneer", "cheese", "raita"],
   egg: ["egg", "eggs", "omelet", "omelette", "bhurji"],
-  fish: ["fish", "seafood"],
+  fish: ["fish", "seafood", "salmon", "tuna", "sardine", "mackerel"],
+  shellfish: ["shellfish", "shrimp", "prawn", "prawns", "crab", "lobster", "mussel", "mussels"],
   chicken: ["chicken", "poultry"],
   peanut: ["peanut", "peanuts"],
-  nuts: ["nut", "nuts", "almond", "cashew", "walnut"]
+  nuts: ["tree nut", "tree nuts", "nut", "nuts", "almond", "cashew", "walnut"],
+  soy: ["soy", "soya", "tofu", "edamame"],
+  gluten: ["gluten", "wheat", "bread", "toast", "chapati", "roti", "dalia", "whole-grain", "wholemeal"]
 };
 
 function normalizeStringArray(value) {
@@ -163,7 +167,7 @@ function allergyText(item) {
 
 function isAllergySafe(item, profile) {
   const text = allergyText(item);
-  return !["egg", "fish", "chicken", "peanut", "nuts"].some((allergen) =>
+  return !["dairy", "egg", "fish", "shellfish", "chicken", "peanut", "nuts", "soy", "gluten"].some((allergen) =>
     hasTextAllergen(text, profile, allergen)
   );
 }
@@ -202,14 +206,38 @@ function adaptAllergyText(text, profile) {
   if (hasAllergy(profile, "fish")) {
     safeText = safeText
       .replace(/\blow-mercury fish\b/gi, "clinician-approved omega-3 alternative")
+      .replace(/\bsalmon|tuna|sardines?|mackerel\b/gi, "clinician-approved omega-3 alternative")
       .replace(/\bfish\b/gi, "clinician-approved omega-3 alternative")
       .replace(/\bseafood\b/gi, "clinician-approved omega-3 alternative");
+  }
+
+  if (hasAllergy(profile, "shellfish")) {
+    safeText = safeText
+      .replace(/\bshellfish|shrimp|prawns?|crab|lobster|mussels?\b/gi, "beans, lentils, tofu, or other tolerated protein");
   }
 
   if (hasAllergy(profile, "chicken")) {
     safeText = safeText
       .replace(/\bchicken\b/gi, "dal, beans, tofu, or other tolerated protein")
       .replace(/\bpoultry\b/gi, "dal, beans, tofu, or other tolerated protein");
+  }
+
+  if (hasAllergy(profile, "soy")) {
+    safeText = safeText
+      .replace(/\bcalcium-fortified soy beverage\b/gi, "clinician-approved calcium-fortified alternative")
+      .replace(/\bcalcium-fortified soy milk\b/gi, "clinician-approved calcium-fortified alternative")
+      .replace(/\bsoy cultured alternative\b/gi, "clinician-approved cultured alternative")
+      .replace(/\bsoy foods?\b/gi, "beans, lentils, seeds, or other tolerated protein")
+      .replace(/\bsoy\b/gi, "clinician-approved soy-free alternative")
+      .replace(/\btofu\b/gi, "beans, lentils, seeds, or other tolerated protein");
+  }
+
+  if (hasAllergy(profile, "gluten")) {
+    safeText = safeText
+      .replace(/\bwhole-grain toast\b/gi, "gluten-free grain option")
+      .replace(/\bwhole-grain roti\b/gi, "gluten-free grain option")
+      .replace(/\bwholemeal bread\b/gi, "gluten-free grain option")
+      .replace(/\bchapati|roti|toast|bread|dalia|wheat|gluten\b/gi, "gluten-free grain option");
   }
 
   return safeText;
@@ -530,7 +558,7 @@ export async function* runPregnancyPlan(input = {}) {
   const channelCopy = draftChannelCopy(firstPlan, profile, ["push", "email", "print"]);
   yield { type: "tool.result", tool: "draftChannelCopy", result: channelCopy };
 
-  const output = {
+  const output = sanitizePlanForAllergies({
     profile,
     targets,
     babySize: babySizeForWeek(profile.gestationalWeek),
@@ -551,7 +579,7 @@ export async function* runPregnancyPlan(input = {}) {
       exercise: explainRationale("exercise", profile, targets),
       hydration: explainRationale("hydration", profile, targets)
     }
-  };
+  });
 
   yield { type: "done", summary: "Plan complete", outputUrl: null, output };
 }

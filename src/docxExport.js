@@ -164,7 +164,7 @@ export function createPlanDocumentXml(plan = {}) {
     ...optionBankSections(firstOptionBank),
     heading("Healthy Focus"),
     ...(healthyFocus.length ? healthyFocus.map(bullet) : [paragraph("Healthy focus options were not available for this plan.")]),
-    heading("Milk and Healthy Food Recommendations"),
+    heading("Calcium and Healthy Food Recommendations"),
     ...(milkRecommendations.length ? milkRecommendations.map(bullet) : [paragraph("Follow the nutrition recommendations below and choose allergy-safe milk or calcium alternatives as needed.")]),
     heading("Nutrition Recommendations"),
     ...nutritionSections(plan),

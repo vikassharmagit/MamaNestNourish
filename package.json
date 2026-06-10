@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "test": "node --test",
-    "update:sources": "node scripts/updateDataSources.js"
+    "update:sources": "node scripts/updateDataSources.js",
+    "validate:sources": "node scripts/validateSourceData.js"
   },
   "engines": {
     "node": ">=20"

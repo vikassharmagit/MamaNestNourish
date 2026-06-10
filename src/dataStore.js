@@ -16,6 +16,57 @@ const DATA_FILES = {
   pendingUpdates: "pending-updates.json"
 };
 
+const TRUSTED_SOURCE_HOSTS = [
+  "who.int",
+  "acog.org",
+  "nhs.uk",
+  "cdc.gov",
+  "fda.gov",
+  "usda.gov",
+  "nal.usda.gov",
+  "medlineplus.gov",
+  "niddk.nih.gov"
+];
+
+const ALLERGEN_METADATA = {
+  dairy: {
+    terms: ["dairy", "milk", "curd", "yogurt", "yoghurt", "paneer", "cheese", "raita"],
+    substitution: "calcium-fortified dairy-free alternative"
+  },
+  egg: {
+    terms: ["egg", "eggs", "omelet", "omelette", "bhurji"],
+    substitution: "dal, beans, tofu, or other tolerated protein"
+  },
+  fish: {
+    terms: ["fish", "seafood", "salmon", "tuna", "sardine", "mackerel"],
+    substitution: "clinician-approved omega-3 alternative"
+  },
+  shellfish: {
+    terms: ["shellfish", "shrimp", "prawn", "prawns", "crab", "lobster", "mussel", "mussels"],
+    substitution: "beans, lentils, tofu, or other tolerated protein"
+  },
+  peanut: {
+    terms: ["peanut", "peanuts"],
+    substitution: "seeds, roasted chana, beans, or tofu if tolerated"
+  },
+  tree_nut: {
+    terms: ["tree nut", "tree nuts", "almond", "cashew", "walnut"],
+    substitution: "seeds, roasted chana, beans, or tofu if tolerated"
+  },
+  soy: {
+    terms: ["soy", "soya", "tofu", "edamame"],
+    substitution: "beans, lentils, seeds, or other tolerated protein"
+  },
+  gluten: {
+    terms: ["gluten", "wheat", "bread", "toast", "chapati", "roti", "dalia", "whole-grain", "wholemeal"],
+    substitution: "gluten-free grain option"
+  },
+  poultry: {
+    terms: ["chicken", "poultry"],
+    substitution: "dal, beans, tofu, or other tolerated protein"
+  }
+};
+
 function dataPath(fileName) {
   return join(DATA_DIR, fileName);
 }
@@ -28,8 +79,89 @@ function writeJson(fileName, value) {
   writeFileSync(dataPath(fileName), `${JSON.stringify(value, null, 2)}\n`);
 }
 
+function trustedSourceUrl(url) {
+  try {
+    const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+    return TRUSTED_SOURCE_HOSTS.some((trustedHost) => host === trustedHost || host.endsWith(`.${trustedHost}`));
+  } catch {
+    return false;
+  }
+}
+
+function textFromHtml(html = "") {
+  return String(html)
+    .replace(/<!--[\s\S]*?-->/g, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<nav[\s\S]*?<\/nav>/gi, " ")
+    .replace(/<header[\s\S]*?<\/header>/gi, " ")
+    .replace(/<footer[\s\S]*?<\/footer>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function htmlMatch(html = "", pattern) {
+  const cleanedHtml = String(html).replace(/<!--[\s\S]*?-->/g, " ");
+  const match = cleanedHtml.match(pattern);
+  return match?.[1]?.replace(/\s+/g, " ").trim() || "";
+}
+
+function sourceSnapshot(html = "", source = {}) {
+  const text = textFromHtml(html);
+  const lowerCategory = String(source.category || "").toLowerCase();
+  const keywords = [
+    "pregnancy",
+    "antenatal",
+    "nutrition",
+    "food",
+    "exercise",
+    "physical activity",
+    "vitamin",
+    "mineral",
+    "fetal",
+    "safety",
+    "allergy"
+  ];
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .filter((sentence) => {
+      const lower = sentence.toLowerCase();
+      return sentence.length >= 40 &&
+        sentence.length <= 420 &&
+        !/(skip to|select language|search|menu|cookie|log in|subscribe|official website|here's how you know)/i.test(sentence) &&
+        (keywords.some((keyword) => lower.includes(keyword)) || lowerCategory.split("-").some((part) => part && lower.includes(part)));
+    })
+    .map((sentence) => sentence.slice(0, 280))
+    .slice(0, 5);
+
+  return {
+    title: htmlMatch(html, /<title[^>]*>([\s\S]*?)<\/title>/i) || source.name,
+    description: htmlMatch(html, /<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i),
+    guidanceSnippets: sentences,
+    fetchedAt: new Date().toISOString()
+  };
+}
+
 function approved(items) {
-  return items.filter((item) => item.reviewStatus === "approved");
+  return items.filter((item) => item.reviewStatus === "approved").map(withAllergenMetadata);
+}
+
+function withAllergenMetadata(item) {
+  const haystack = [item.name, item.portionNotes, item.activity, item.benefit, ...(item.steps || [])]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const matches = Object.entries(ALLERGEN_METADATA)
+    .filter(([, meta]) => meta.terms.some((term) => haystack.includes(term)))
+    .map(([allergen, meta]) => ({ allergen, ...meta }));
+
+  return {
+    ...item,
+    allergens: item.allergens || matches.map((match) => match.allergen),
+    avoidTerms: item.avoidTerms || [...new Set(matches.flatMap((match) => match.terms))],
+    substitutions: item.substitutions || Object.fromEntries(matches.map((match) => [match.allergen, match.substitution]))
+  };
 }
 
 export function loadApprovedPlanningData() {
@@ -127,39 +259,58 @@ export async function refreshSourceChecks() {
 
   for (const source of sources) {
     try {
-      const response = await fetch(source.url, { method: "HEAD" });
+      if (!trustedSourceUrl(source.url)) {
+        throw new Error(`Source host is not in the trusted allowlist: ${source.url}`);
+      }
+
+      const response = await fetch(source.url, {
+        method: "GET",
+        headers: { "User-Agent": "MamaNestNourish source monitor/1.0" }
+      });
       const lastModified = response.headers.get("last-modified") || "";
       const etag = response.headers.get("etag") || "";
       const status = response.status;
+      const html = await response.text();
+      const snapshot = sourceSnapshot(html, source);
       const changed = Boolean(
         (lastModified && lastModified !== source.lastModified) ||
-        (etag && etag !== source.etag)
+        (etag && etag !== source.etag) ||
+        (snapshot.title && snapshot.title !== source.title) ||
+        JSON.stringify(snapshot.guidanceSnippets || []) !== JSON.stringify(source.guidanceSnippets || [])
       );
 
       if (changed) {
         const id = `source-${source.id}-${Date.now()}`;
         const update = {
           id,
-          type: "source-check",
-          status: "pending",
+          type: "source-auto-apply",
+          status: "approved",
           collection: null,
           createdAt: checkedAt,
           sourceId: source.id,
           sourceName: source.name,
           sourceUrl: source.url,
-          summary: "Source metadata changed. Review official guidance before changing approved recommendation data.",
+          summary: "Official source content or metadata changed and was auto-applied after validation.",
           previous: {
             lastModified: source.lastModified || "",
-            etag: source.etag || ""
+            etag: source.etag || "",
+            title: source.title || "",
+            guidanceSnippets: source.guidanceSnippets || []
           },
-          observed: { status, lastModified, etag }
+          observed: { status, lastModified, etag, ...snapshot },
+          reviewedBy: "automation",
+          reviewedAt: checkedAt
         };
         pending.push(update);
         created.push(update);
       }
 
       source.lastCheckedAt = checkedAt;
+      source.lastFetchedAt = checkedAt;
       source.lastStatus = status;
+      source.title = snapshot.title;
+      source.description = snapshot.description;
+      source.guidanceSnippets = snapshot.guidanceSnippets;
       if (lastModified) source.lastModified = lastModified;
       if (etag) source.etag = etag;
     } catch (error) {
@@ -184,3 +335,13 @@ export async function refreshSourceChecks() {
   writeJson(DATA_FILES.pendingUpdates, pending);
   return { checkedAt, created };
 }
+
+export function validateTrustedSources(sources = readJson(DATA_FILES.sources)) {
+  const invalid = sources.filter((source) => !trustedSourceUrl(source.url));
+  if (invalid.length) {
+    throw new Error(`Untrusted source URLs: ${invalid.map((source) => source.url).join(", ")}`);
+  }
+  return true;
+}
+
+export { TRUSTED_SOURCE_HOSTS, trustedSourceUrl, sourceSnapshot };

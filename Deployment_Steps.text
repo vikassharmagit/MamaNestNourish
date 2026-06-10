@@ -1,0 +1,118 @@
+MamaNestNourish Local Deployment Steps
+
+Prerequisites
+- Git
+- Node.js 20 or newer
+- npm
+- Docker Desktop optional, for container-based local running
+
+Clone Or Update The Project
+1. Open PowerShell.
+2. Clone the GitHub repository:
+   git clone https://github.com/vikassharmagit/MamaNestNourish.git
+3. Go to the project folder:
+   cd MamaNestNourish
+4. If the folder already exists, update it:
+   git pull origin main
+
+Install Dependencies
+1. Install Node dependencies:
+   npm install
+2. Run tests:
+   npm test
+
+Environment Variables For Cognito Login
+Set these values before running the app with AWS Cognito authentication:
+
+PowerShell:
+$env:COGNITO_REGION="us-east-1"
+$env:COGNITO_USER_POOL_ID="your-user-pool-id"
+$env:COGNITO_CLIENT_ID="your-app-client-id"
+$env:ADMIN_EMAILS="admin@mamanestnourish.com"
+$env:USER_STORE_FILE="$PWD\runtime\user-records.json"
+
+Local Development Without Cognito
+- If Cognito variables are not set, the server uses local-dev mode.
+- This is useful for testing the planner without AWS login.
+
+Run Locally With Node
+1. Start the app:
+   npm start
+2. Open:
+   http://localhost:3000
+3. Health check:
+   http://localhost:3000/health
+
+Run Locally With Docker
+1. Start Docker Desktop.
+2. From the project folder, run:
+   docker compose up --build -d
+3. Open:
+   http://localhost:3000
+4. View logs:
+   docker compose logs -f
+5. Stop the app:
+   docker compose down
+
+Source Data Update
+1. Fetch official source metadata:
+   npm run update:sources
+2. Validate trusted sources and allergy-safe output:
+   npm run validate:sources
+3. Run the full test suite:
+   npm test
+
+Test Login Accounts
+- Normal user:
+  test@gmail.com
+  Test1234
+- Admin user:
+  admin@mamanestnourish.com
+  Admin1234
+
+AWS Docker Deployment Summary
+- The AWS app folder is:
+  /home/ubuntu/MamaNestNourish
+- Runtime user data is stored outside the image at:
+  /home/ubuntu/MamaNestNourish-runtime/user-records.json
+- The Docker container is named:
+  mamanestnourish
+- The app listens on container and host port 3000.
+- nginx forwards public port 80 to:
+  http://127.0.0.1:3000
+
+Manual AWS Docker Deploy
+Set these variables locally:
+
+PowerShell:
+$env:AWS_HOST="54.86.219.63"
+$env:AWS_USER="ubuntu"
+$env:AWS_SSH_KEY_PATH="$env:USERPROFILE\.ssh\preg-key.pem"
+
+Then run from Git Bash or WSL:
+bash scripts/deployAwsDocker.sh
+
+Weekly GitHub Source Sync
+- GitHub Actions runs every Sunday at 03:00 UTC.
+- It runs:
+  npm run update:sources
+  npm run validate:sources
+  npm test
+- If files changed and checks passed, it commits source metadata updates.
+- If AWS secrets exist, it deploys the Docker app to AWS.
+
+Required GitHub Secrets For AWS Deploy
+- AWS_HOST
+- AWS_USER
+- AWS_SSH_KEY
+
+Troubleshooting
+- If port 3000 is busy, stop the existing process or Docker container.
+- If Docker fails locally, confirm Docker Desktop is running.
+- If login fails, confirm Cognito environment variables are correct.
+- If weekly sync fails, check GitHub Actions logs for the source URL, validation, or test failure.
+- If AWS health check fails, run:
+  ssh ubuntu@54.86.219.63
+  cd /home/ubuntu/MamaNestNourish
+  sudo docker compose ps
+  sudo docker compose logs --tail=100

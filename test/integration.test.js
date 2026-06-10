@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { assertAllergySafeText } from "../src/allergySafety.js";
 import { normalizeAuthIdentifier } from "../src/auth.js";
-import { loadApprovedPlanningData } from "../src/dataStore.js";
+import { loadApprovedPlanningData, sourceSnapshot, trustedSourceUrl, validateTrustedSources } from "../src/dataStore.js";
 import { createPlanDocumentXml } from "../src/docxExport.js";
 import { server } from "../src/server.js";
 import { runPregnancyPlan } from "../src/pregnancyAgent.js";
@@ -54,6 +55,32 @@ test("approved planning data is loaded from data files", () => {
   assert.ok(data.safetyRules.some((rule) => rule.id === "gestational-hypertension"));
   assert.ok(data.sources.some((source) => source.id === "usda-fdc"));
   assert.ok(data.meals.every((meal) => meal.reviewStatus === "approved"));
+  assert.ok(data.meals.every((meal) => Array.isArray(meal.allergens)));
+  assert.ok(data.snacks.every((snack) => Array.isArray(snack.avoidTerms)));
+  assert.ok(validateTrustedSources());
+});
+
+test("source allowlist and snapshot extraction protect source sync", () => {
+  assert.equal(trustedSourceUrl("https://www.who.int/publications/i/item/9789241549912"), true);
+  assert.equal(trustedSourceUrl("https://fdc.nal.usda.gov/api-guide/"), true);
+  assert.equal(trustedSourceUrl("https://example.com/pregnancy-advice"), false);
+
+  const snapshot = sourceSnapshot(`
+    <html>
+      <head>
+        <title>Official Pregnancy Nutrition</title>
+        <meta name="description" content="Official antenatal nutrition guidance">
+      </head>
+      <body>
+        <p>Pregnancy nutrition guidance should include varied food groups and safe food handling.</p>
+        <p>Physical activity during pregnancy should be symptom-aware and discussed with care providers.</p>
+      </body>
+    </html>
+  `, { name: "Fallback", category: "nutrition-guidance" });
+
+  assert.equal(snapshot.title, "Official Pregnancy Nutrition");
+  assert.equal(snapshot.description, "Official antenatal nutrition guidance");
+  assert.ok(snapshot.guidanceSnippets.some((snippet) => /Pregnancy nutrition/i.test(snippet)));
 });
 
 test("streaming pregnancy planner emits required events and final schema", async () => {
@@ -186,6 +213,39 @@ test("diet plan text respects listed allergies across recommendations", async ()
   assert.match(weeklyText, /soy|tofu|omega-3 alternative|seeds/i);
 });
 
+test("allergy sanitizer covers supported and custom allergies in JSON and DOCX", async () => {
+  const allergies = ["peanuts", "dairy", "egg", "fish", "shellfish", "soy", "gluten", "chicken", "banana"];
+
+  for (const allergy of allergies) {
+    const events = [];
+    for await (const event of runPregnancyPlan({
+      gestationalWeek: 22,
+      age: 29,
+      heightCm: 165,
+      weightKg: 68,
+      activityLevel: "moderate",
+      dietaryPreferences: "non_vegetarian",
+      conditions: [],
+      allergies: [allergy]
+    })) {
+      events.push(event);
+    }
+
+    const plan = events.find((event) => event.type === "done").output;
+    const publicJson = JSON.stringify({
+      weeklyPlan: plan.weeklyPlan,
+      nutritionRecommendations: plan.nutritionRecommendations,
+      micronutrientRecommendations: plan.micronutrientRecommendations,
+      rationale: plan.rationale
+    });
+    const documentXml = createPlanDocumentXml(plan);
+
+    assertAllergySafeText(publicJson, [allergy]);
+    assertAllergySafeText(documentXml, [allergy]);
+    assert.match(publicJson, /alternative|tolerated|beans|seeds|gluten-free|dairy-free|omega-3/i);
+  }
+});
+
 test("server starts and allows local planning when Cognito is not configured", async () => {
   const address = await listen(server);
   try {
@@ -278,7 +338,7 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.match(documentXml, /Seven-Day Plan/);
     assert.match(documentXml, /Healthy Variety Options/);
     assert.match(documentXml, /Healthy Focus/);
-    assert.match(documentXml, /Milk and Healthy Food Recommendations/);
+    assert.match(documentXml, /Calcium and Healthy Food Recommendations/);
     assert.match(documentXml, /Nutrition Recommendations/);
 
     const pendingResponse = await fetch(`${baseUrl}/api/admin/pending-updates`);
