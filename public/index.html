@@ -93,6 +93,17 @@
         font-size: 20px;
       }
 
+      .language-select {
+        min-height: 36px;
+        min-width: 118px;
+        border: 1px solid #b8cedd;
+        border-radius: 8px;
+        background: #ffffff;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 750;
+      }
+
       .mark {
         display: block;
         width: 54px;
@@ -1120,59 +1131,63 @@
           <img class="mark" src="/assets/MamaNestNourish.png" alt="MamaNestNourish logo" />
           <span>MamaNestNourish</span>
         </div>
+        <select id="languageSelect" class="language-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+        </select>
         <div class="auth-card" id="authCard">
-          <div class="status">Week-by-week pregnancy planning API demo</div>
+          <div class="status" data-i18n="authTitle">Week-by-week pregnancy planning API demo</div>
           <div class="auth-row" id="authInputs">
-            <input id="authIdentifier" type="text" autocomplete="username" placeholder="Email or phone (+91...)" />
-            <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" />
-            <button id="loginBtn" type="button">Log in</button>
-            <button id="signupBtn" type="button">Sign up</button>
+            <input id="authIdentifier" type="text" autocomplete="username" placeholder="Email or phone (+91...)" data-i18n-placeholder="authIdentifierPlaceholder" />
+            <input id="authPassword" type="password" autocomplete="current-password" placeholder="Password" data-i18n-placeholder="passwordPlaceholder" />
+            <button id="loginBtn" type="button" data-i18n="login">Log in</button>
+            <button id="signupBtn" type="button" data-i18n="signup">Sign up</button>
           </div>
           <div class="auth-row confirm" id="confirmRow" hidden>
-            <input id="confirmCode" inputmode="numeric" placeholder="Confirmation code" />
-            <button id="confirmBtn" type="button">Confirm</button>
-            <button id="resendCodeBtn" type="button">Resend</button>
-            <button id="cancelConfirmBtn" type="button">Cancel</button>
+            <input id="confirmCode" inputmode="numeric" placeholder="Confirmation code" data-i18n-placeholder="confirmCodePlaceholder" />
+            <button id="confirmBtn" type="button" data-i18n="confirm">Confirm</button>
+            <button id="resendCodeBtn" type="button" data-i18n="resend">Resend</button>
+            <button id="cancelConfirmBtn" type="button" data-i18n="cancel">Cancel</button>
           </div>
           <div class="auth-actions">
-            <div id="authMessage" class="auth-message">Checking authentication...</div>
+            <div id="authMessage" class="auth-message" data-i18n="checkingAuth">Checking authentication...</div>
           </div>
         </div>
-        <button id="logoutBtn" class="topbar-logout" type="button" hidden>Log out</button>
+        <button id="logoutBtn" class="topbar-logout" type="button" hidden data-i18n="logout">Log out</button>
       </div>
     </header>
 
     <main>
       <section class="panel">
-        <h1>Build a safe weekly plan</h1>
-        <p>Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.</p>
+        <h1 data-i18n="mainTitle">Build a safe weekly plan</h1>
+        <p data-i18n="mainSubtitle">Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.</p>
 
         <div class="stepper" aria-label="Plan setup steps">
-          <div class="step-pill active" data-step-pill="0"><span>1</span>Pregnancy details</div>
-          <div class="step-pill" data-step-pill="1"><span>2</span>Health & allergies</div>
-          <div class="step-pill" data-step-pill="2"><span>3</span>Food & lifestyle</div>
+          <div class="step-pill active" data-step-pill="0"><span>1</span><b data-i18n="stepPregnancy">Pregnancy details</b></div>
+          <div class="step-pill" data-step-pill="1"><span>2</span><b data-i18n="stepHealth">Health & allergies</b></div>
+          <div class="step-pill" data-step-pill="2"><span>3</span><b data-i18n="stepFood">Food & lifestyle</b></div>
         </div>
 
         <form id="planForm">
           <div class="form-step active" data-step="0">
             <div class="grid profile-grid">
               <label class="date-field">
-                Last period date
+                <span data-i18n="lastPeriodDate">Last period date</span>
                 <input id="lastPeriodDate" type="date" />
-                <span id="gestationalAgeNote" class="field-note">Select the first day of the last period.</span>
+                <span id="gestationalAgeNote" class="field-note" data-i18n="lastPeriodHint">Select the first day of the last period.</span>
               </label>
               <label class="date-field calculated-field">
-                Week and day
+                <span data-i18n="weekAndDay">Week and day</span>
                 <input id="gestationalAgeDisplay" value="0 weeks 0 days" readonly />
                 <input id="gestationalWeek" type="hidden" value="0" />
                 <input id="gestationalDay" type="hidden" value="0" />
               </label>
               <label class="age-field">
-                Age
+                <span data-i18n="age">Age</span>
                 <input id="age" type="number" min="12" max="60" value="29" />
               </label>
               <label class="age-field">
-                Height cm
+                <span data-i18n="heightCm">Height cm</span>
                 <div class="height-row">
                   <input id="heightValue" type="number" min="1" step="0.1" value="165" />
                   <input id="heightInches" type="number" min="0" max="11" step="1" value="0" aria-label="Height inches" hidden />
@@ -1185,19 +1200,19 @@
                 <input id="heightCm" type="hidden" value="165" />
               </label>
               <label class="age-field">
-                Weight kg
+                <span data-i18n="weightKg">Weight kg</span>
                 <input id="weightKg" type="number" min="30" max="220" value="68" />
               </label>
             </div>
             <div class="step-actions">
-              <span class="field-note">Step 1 of 3</span>
-              <button class="nextStepBtn" type="button">Next</button>
+              <span class="field-note" data-i18n="stepOneOfThree">Step 1 of 3</span>
+              <button class="nextStepBtn" type="button" data-i18n="next">Next</button>
             </div>
           </div>
 
           <div class="form-step" data-step="1">
             <label>
-              Conditions
+              <span data-i18n="conditions">Conditions</span>
               <select id="conditions" class="native-hidden" multiple tabindex="-1">
                 <option value="none" selected>No known condition</option>
                 <option value="gestational_hypertension">Gestational hypertension</option>
@@ -1224,63 +1239,63 @@
             </label>
 
             <label>
-              Allergies
+              <span data-i18n="allergies">Allergies</span>
               <input id="allergies" class="native-hidden" value="none" tabindex="-1" />
               <div id="allergyChips" class="chip-group" aria-label="Allergy choices"></div>
               <div class="inline-add">
-                <input id="customAllergy" type="text" placeholder="Add another allergy" />
-                <button id="addAllergyBtn" class="secondary-btn" type="button">Add</button>
+                <input id="customAllergy" type="text" placeholder="Add another allergy" data-i18n-placeholder="addAllergyPlaceholder" />
+                <button id="addAllergyBtn" class="secondary-btn" type="button" data-i18n="add">Add</button>
               </div>
-              <span class="field-note">Selected allergies are used across meals, snacks, healthy focus, and recommendations.</span>
+              <span class="field-note" data-i18n="allergyNote">Selected allergies are used across meals, snacks, healthy focus, and recommendations.</span>
             </label>
             <div class="step-actions">
-              <span class="field-note">Step 2 of 3</span>
-              <button class="prevStepBtn secondary-btn" type="button">Back</button>
-              <button class="nextStepBtn" type="button">Next</button>
+              <span class="field-note" data-i18n="stepTwoOfThree">Step 2 of 3</span>
+              <button class="prevStepBtn secondary-btn" type="button" data-i18n="back">Back</button>
+              <button class="nextStepBtn" type="button" data-i18n="next">Next</button>
             </div>
           </div>
 
           <div class="form-step" data-step="2">
             <div class="grid">
               <label>
-                Activity
+                <span data-i18n="activity">Activity</span>
                 <select id="activityLevel">
-                  <option value="sedentary">Sedentary</option>
-                  <option value="light">Light</option>
-                  <option value="moderate" selected>Moderate</option>
-                  <option value="active">Active</option>
+                  <option value="sedentary" data-i18n="activitySedentary">Sedentary</option>
+                  <option value="light" data-i18n="activityLight">Light</option>
+                  <option value="moderate" selected data-i18n="activityModerate">Moderate</option>
+                  <option value="active" data-i18n="activityActive">Active</option>
                 </select>
               </label>
               <label>
-                Diet
+                <span data-i18n="diet">Diet</span>
                 <select id="dietaryPreferences">
-                  <option value="vegetarian" selected>Vegetarian</option>
-                  <option value="non_vegetarian">Non-vegetarian</option>
-                  <option value="eggitarian">Eggitarian</option>
+                  <option value="vegetarian" selected data-i18n="dietVegetarian">Vegetarian</option>
+                  <option value="non_vegetarian" data-i18n="dietNonVegetarian">Non-vegetarian</option>
+                  <option value="eggitarian" data-i18n="dietEggitarian">Eggitarian</option>
                 </select>
               </label>
             </div>
 
             <label>
-              Work style
+              <span data-i18n="workStyle">Work style</span>
               <select id="workStyle">
-                <option value="I work a desk job" selected>Desk job</option>
-                <option value="I stand or walk for long hours">Standing or walking long hours</option>
-                <option value="I do light physical work">Light physical work</option>
-                <option value="I do shift work">Shift work</option>
-                <option value="I work from home">Work from home</option>
-                <option value="I am mostly resting at home">Mostly resting at home</option>
+                <option value="I work a desk job" selected data-i18n="workDesk">Desk job</option>
+                <option value="I stand or walk for long hours" data-i18n="workStanding">Standing or walking long hours</option>
+                <option value="I do light physical work" data-i18n="workLightPhysical">Light physical work</option>
+                <option value="I do shift work" data-i18n="workShift">Shift work</option>
+                <option value="I work from home" data-i18n="workHome">Work from home</option>
+                <option value="I am mostly resting at home" data-i18n="workResting">Mostly resting at home</option>
               </select>
             </label>
             <label>
-              Profile notes
+              <span data-i18n="profileNotes">Profile notes</span>
               <textarea id="profileText" readonly></textarea>
-              <span class="field-note">This summary is generated from the previous steps.</span>
+              <span class="field-note" data-i18n="profileNotesHint">This summary is generated from the previous steps.</span>
             </label>
             <div class="step-actions">
-              <span class="field-note">Step 3 of 3</span>
-              <button class="prevStepBtn secondary-btn" type="button">Back</button>
-              <button id="submitBtn" type="submit">Generate plan</button>
+              <span class="field-note" data-i18n="stepThreeOfThree">Step 3 of 3</span>
+              <button class="prevStepBtn secondary-btn" type="button" data-i18n="back">Back</button>
+              <button id="submitBtn" type="submit" data-i18n="generatePlan">Generate plan</button>
             </div>
           </div>
         </form>
@@ -1289,8 +1304,8 @@
       <section class="result-panel">
         <div class="result-head">
           <div>
-            <h2>Plan output</h2>
-            <p id="runState">Ready to generate.</p>
+            <h2 data-i18n="planOutput">Plan output</h2>
+            <p id="runState" data-i18n="readyToGenerate">Ready to generate.</p>
           </div>
           <div class="progress" aria-label="Generation progress">
             <div id="progressBar" class="bar"></div>
@@ -1302,10 +1317,10 @@
       <section id="adminPanel" class="admin-panel" hidden>
         <div class="result-head">
           <div>
-            <h2>Admin user data</h2>
-            <p id="adminState">No user records loaded.</p>
+            <h2 data-i18n="adminUserData">Admin user data</h2>
+            <p id="adminState" data-i18n="noUserRecords">No user records loaded.</p>
           </div>
-          <button id="refreshAdminBtn" class="secondary-btn" type="button">Refresh</button>
+          <button id="refreshAdminBtn" class="secondary-btn" type="button" data-i18n="refresh">Refresh</button>
         </div>
         <div id="adminUsers" class="admin-list"></div>
       </section>
@@ -1326,9 +1341,229 @@
       let planGenerated = false;
       let adminLoaded = false;
       let savedUserLoaded = false;
+      let currentLanguage = localStorage.getItem("mamanestnourishLanguage") || "en";
+
+      const translations = {
+        en: {
+          authTitle: "Week-by-week pregnancy planning API demo",
+          authIdentifierPlaceholder: "Email or phone (+91...)",
+          passwordPlaceholder: "Password",
+          confirmCodePlaceholder: "Confirmation code",
+          login: "Log in",
+          signup: "Sign up",
+          confirm: "Confirm",
+          resend: "Resend",
+          cancel: "Cancel",
+          logout: "Log out",
+          checkingAuth: "Checking authentication...",
+          authNotConfigured: "Authentication is not configured on this server yet. Ask the administrator to enable AWS Cognito.",
+          signedIn: "Signed in. You can generate a private plan.",
+          signedOut: "Sign in with email or phone number, or create an account to generate a plan.",
+          accountConfirmed: "Account confirmed. You can log in now.",
+          confirmationSent: "A new confirmation code was sent.",
+          mainTitle: "Build a safe weekly plan",
+          mainSubtitle: "Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.",
+          stepPregnancy: "Pregnancy details",
+          stepHealth: "Health & allergies",
+          stepFood: "Food & lifestyle",
+          lastPeriodDate: "Last period date",
+          lastPeriodHint: "Select the first day of the last period.",
+          invalidLastPeriod: "Select a valid past last period date.",
+          calculatedGestationalAge: "Calculated gestational age: {weeks} weeks {days} days. Estimated due date: {dueDate}.",
+          weekAndDay: "Week and day",
+          age: "Age",
+          heightCm: "Height cm",
+          weightKg: "Weight kg",
+          stepOneOfThree: "Step 1 of 3",
+          stepTwoOfThree: "Step 2 of 3",
+          stepThreeOfThree: "Step 3 of 3",
+          next: "Next",
+          back: "Back",
+          conditions: "Conditions",
+          allergies: "Allergies",
+          noKnownCondition: "No known condition",
+          noKnownAllergy: "No known allergy",
+          addAllergyPlaceholder: "Add another allergy",
+          add: "Add",
+          allergyNote: "Selected allergies are used across meals, snacks, healthy focus, and recommendations.",
+          activity: "Activity",
+          activitySedentary: "Sedentary",
+          activityLight: "Light",
+          activityModerate: "Moderate",
+          activityActive: "Active",
+          diet: "Diet",
+          dietVegetarian: "Vegetarian",
+          dietNonVegetarian: "Non-vegetarian",
+          dietEggitarian: "Eggitarian",
+          workStyle: "Work style",
+          workDesk: "Desk job",
+          workStanding: "Standing or walking long hours",
+          workLightPhysical: "Light physical work",
+          workShift: "Shift work",
+          workHome: "Work from home",
+          workResting: "Mostly resting at home",
+          profileNotes: "Profile notes",
+          profileNotesHint: "This summary is generated from the previous steps.",
+          generatePlan: "Generate plan",
+          planOutput: "Plan output",
+          readyToGenerate: "Ready to generate.",
+          generatingPlan: "Generating plan...",
+          couldNotGenerate: "Could not generate the plan.",
+          noPlanGenerated: "No plan generated yet",
+          emptyPlanHint: "Submit the form to see streamed progress and the weekly plan.",
+          adminUserData: "Admin user data",
+          noUserRecords: "No user records loaded.",
+          refresh: "Refresh",
+          editProfile: "Edit profile",
+          printPlan: "Print plan",
+          download: "Download",
+          reset: "Reset",
+          babySizeThisWeek: "Baby size this week",
+          todaysPlan: "Today's plan",
+          exercise: "Exercise",
+          hydration: "Hydration",
+          safetyProvider: "Review this with your care provider",
+          noMajorRisk: "No major risk flag was found from the details provided",
+          noMajorRiskDetail: "Keep using this as educational guidance and contact your care provider for new symptoms or concerns.",
+          healthyVarietyOptions: "Healthy variety options",
+          healthyFocus: "Healthy focus",
+          milkRecommendations: "Milk and healthy food recommendations",
+          sevenDayPlan: "Seven-day plan",
+          machineJson: "Machine-readable JSON",
+          followUpQuestions: "Follow-up questions",
+          breakfastOptions: "Breakfast options",
+          lunchOptions: "Lunch options",
+          dinnerOptions: "Dinner options",
+          loadedSavedPlan: "Loaded your last saved plan from {date}.",
+          downloadFailed: "Download failed: {status}",
+          timelineProfile: "Reading profile",
+          timelineSafety: "Checking safety",
+          timelineMeals: "Preparing meals and exercise",
+          timelineDone: "Building weekly plan"
+        },
+        hi: {
+          authTitle: "सप्ताह-दर-सप्ताह गर्भावस्था योजना",
+          authIdentifierPlaceholder: "ईमेल या फोन (+91...)",
+          passwordPlaceholder: "पासवर्ड",
+          confirmCodePlaceholder: "पुष्टिकरण कोड",
+          login: "लॉग इन",
+          signup: "साइन अप",
+          confirm: "पुष्टि करें",
+          resend: "फिर भेजें",
+          cancel: "रद्द करें",
+          logout: "लॉग आउट",
+          checkingAuth: "प्रमाणीकरण जांचा जा रहा है...",
+          authNotConfigured: "इस सर्वर पर प्रमाणीकरण अभी कॉन्फ़िगर नहीं है। व्यवस्थापक से AWS Cognito सक्षम करने को कहें।",
+          signedIn: "आप साइन इन हैं। अब निजी योजना बना सकते हैं।",
+          signedOut: "योजना बनाने के लिए ईमेल या फोन से साइन इन करें या खाता बनाएं।",
+          accountConfirmed: "खाता पुष्टि हो गया। अब लॉग इन कर सकते हैं।",
+          confirmationSent: "नया पुष्टिकरण कोड भेजा गया।",
+          mainTitle: "सुरक्षित साप्ताहिक योजना बनाएं",
+          mainSubtitle: "हर चरण पूरा करें, फिर सुरक्षा संकेतों, भोजन, पानी और व्यायाम वाली योजना बनाएं।",
+          stepPregnancy: "गर्भावस्था विवरण",
+          stepHealth: "स्वास्थ्य और एलर्जी",
+          stepFood: "भोजन और जीवनशैली",
+          lastPeriodDate: "अंतिम माहवारी की तारीख",
+          lastPeriodHint: "अंतिम माहवारी का पहला दिन चुनें।",
+          invalidLastPeriod: "कृपया पिछली मान्य तारीख चुनें।",
+          calculatedGestationalAge: "गर्भावधि: {weeks} सप्ताह {days} दिन। अनुमानित प्रसव तारीख: {dueDate}।",
+          weekAndDay: "सप्ताह और दिन",
+          age: "उम्र",
+          heightCm: "लंबाई सेमी",
+          weightKg: "वजन किग्रा",
+          stepOneOfThree: "चरण 1 / 3",
+          stepTwoOfThree: "चरण 2 / 3",
+          stepThreeOfThree: "चरण 3 / 3",
+          next: "आगे",
+          back: "पीछे",
+          conditions: "स्वास्थ्य स्थितियां",
+          allergies: "एलर्जी",
+          noKnownCondition: "कोई ज्ञात स्थिति नहीं",
+          noKnownAllergy: "कोई ज्ञात एलर्जी नहीं",
+          addAllergyPlaceholder: "एक और एलर्जी जोड़ें",
+          add: "जोड़ें",
+          allergyNote: "चुनी गई एलर्जी भोजन, स्नैक्स, स्वस्थ विकल्प और सुझावों में ध्यान रखी जाती है।",
+          activity: "गतिविधि",
+          activitySedentary: "कम सक्रिय",
+          activityLight: "हल्की",
+          activityModerate: "मध्यम",
+          activityActive: "सक्रिय",
+          diet: "आहार",
+          dietVegetarian: "शाकाहारी",
+          dietNonVegetarian: "मांसाहारी",
+          dietEggitarian: "अंडा-शाकाहारी",
+          workStyle: "काम का तरीका",
+          workDesk: "डेस्क जॉब",
+          workStanding: "लंबे समय खड़े/चलना",
+          workLightPhysical: "हल्का शारीरिक काम",
+          workShift: "शिफ्ट वर्क",
+          workHome: "घर से काम",
+          workResting: "अधिकतर आराम",
+          profileNotes: "प्रोफाइल नोट्स",
+          profileNotesHint: "यह सारांश पिछले चरणों से अपने आप बनता है।",
+          generatePlan: "योजना बनाएं",
+          planOutput: "योजना परिणाम",
+          readyToGenerate: "योजना बनाने के लिए तैयार।",
+          generatingPlan: "योजना बन रही है...",
+          couldNotGenerate: "योजना नहीं बन सकी।",
+          noPlanGenerated: "अभी कोई योजना नहीं बनी",
+          emptyPlanHint: "साप्ताहिक योजना देखने के लिए फॉर्म सबमिट करें।",
+          adminUserData: "एडमिन उपयोगकर्ता डेटा",
+          noUserRecords: "कोई उपयोगकर्ता रिकॉर्ड लोड नहीं हुआ।",
+          refresh: "रीफ्रेश",
+          editProfile: "प्रोफाइल संपादित करें",
+          printPlan: "प्रिंट",
+          download: "डाउनलोड",
+          reset: "रीसेट",
+          babySizeThisWeek: "इस सप्ताह शिशु का आकार",
+          todaysPlan: "आज की योजना",
+          exercise: "व्यायाम",
+          hydration: "पानी",
+          safetyProvider: "इसे अपने डॉक्टर से जरूर चर्चा करें",
+          noMajorRisk: "दिए गए विवरण में कोई बड़ा जोखिम संकेत नहीं मिला",
+          noMajorRiskDetail: "इसे शैक्षिक मार्गदर्शन की तरह उपयोग करें और नए लक्षणों पर डॉक्टर से संपर्क करें।",
+          healthyVarietyOptions: "स्वस्थ विविध विकल्प",
+          healthyFocus: "स्वस्थ फोकस",
+          milkRecommendations: "दूध और स्वस्थ भोजन सुझाव",
+          sevenDayPlan: "सात दिन की योजना",
+          machineJson: "मशीन-पठनीय JSON",
+          followUpQuestions: "फॉलो-अप प्रश्न",
+          breakfastOptions: "नाश्ते के विकल्प",
+          lunchOptions: "दोपहर भोजन विकल्प",
+          dinnerOptions: "रात भोजन विकल्प",
+          loadedSavedPlan: "आपकी पिछली योजना {date} से लोड हुई।",
+          downloadFailed: "डाउनलोड विफल: {status}",
+          timelineProfile: "प्रोफाइल पढ़ी जा रही है",
+          timelineSafety: "सुरक्षा जांच हो रही है",
+          timelineMeals: "भोजन और व्यायाम तैयार हो रहे हैं",
+          timelineDone: "साप्ताहिक योजना बन रही है"
+        }
+      };
 
       function authHeader() {
         return authTokens?.IdToken ? { Authorization: `Bearer ${authTokens.IdToken}` } : {};
+      }
+
+      function t(key, variables = {}) {
+        const text = translations[currentLanguage]?.[key] || translations.en[key] || key;
+        return Object.entries(variables).reduce(
+          (result, [name, value]) => result.replaceAll(`{${name}}`, value),
+          text
+        );
+      }
+
+      function applyLanguage() {
+        document.documentElement.lang = currentLanguage;
+        document.querySelector("#languageSelect").value = currentLanguage;
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          element.textContent = t(element.dataset.i18n);
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+          element.placeholder = t(element.dataset.i18nPlaceholder);
+        });
+        renderConditionChips();
+        renderAllergyChips();
+        updateAuthUi();
       }
 
       function escapeHtml(value = "") {
@@ -1359,8 +1594,8 @@
                 <path d="M170 112c16-12 26-26 26-44a24 24 0 0 0-48 0c0 18 10 32 22 44Z" fill="#f4d2a3" />
                 <path d="M158 70c7 12 18 13 25 0" stroke="#8f5a18" stroke-width="4" stroke-linecap="round" />
               </svg>
-              <h3>No plan generated yet</h3>
-              <p>Submit the form to see streamed progress and the weekly plan.</p>
+              <h3>${t("noPlanGenerated")}</h3>
+              <p>${t("emptyPlanHint")}</p>
             </div>
           </div>
         `;
@@ -1399,7 +1634,7 @@
         const container = document.querySelector("#conditionChips");
         container.innerHTML = Array.from(select.options).map((option) => `
           <button class="chip ${option.selected ? "selected" : ""}" type="button" data-condition="${option.value}">
-            ${option.textContent}
+            ${option.value === "none" ? t("noKnownCondition") : option.textContent}
           </button>
         `).join("");
       }
@@ -1420,7 +1655,7 @@
           const selected = item === "none" ? !selectedAllergies.length : selectedAllergies.includes(item);
           return `
             <button class="chip ${selected ? "selected" : ""}" type="button" data-allergy="${item}">
-              ${item === "none" ? "No known allergy" : item}
+              ${item === "none" ? t("noKnownAllergy") : item}
             </button>
           `;
         }).join("");
@@ -1434,10 +1669,10 @@
 
       function timelineHtml(activeKey = "extractProfile") {
         const steps = [
-          ["extractProfile", "Reading profile"],
-          ["safety", "Checking safety"],
-          ["generateDailyPlan", "Preparing meals and exercise"],
-          ["done", "Building weekly plan"]
+          ["extractProfile", t("timelineProfile")],
+          ["safety", t("timelineSafety")],
+          ["generateDailyPlan", t("timelineMeals")],
+          ["done", t("timelineDone")]
         ];
         const activeIndex = Math.max(0, steps.findIndex(([key]) => key === activeKey));
         return `
@@ -1489,11 +1724,11 @@
         document.querySelector("#logoutBtn").hidden = !loggedIn;
         submitBtn.disabled = !appUnlocked;
         if (!authConfigured) {
-          setAuthMessage("Authentication is not configured on this server yet. Ask the administrator to enable AWS Cognito.");
+          setAuthMessage(t("authNotConfigured"));
         } else if (loggedIn) {
-          setAuthMessage("Signed in. You can generate a private plan.");
+          setAuthMessage(t("signedIn"));
         } else {
-          setAuthMessage("Sign in with email or phone number, or create an account to generate a plan.");
+          setAuthMessage(t("signedOut"));
         }
         if (loggedIn && !adminLoaded) {
           loadAdminUsers();
@@ -1611,7 +1846,7 @@
       function restoreSavedPlan(savedPlan) {
         if (!savedPlan?.plan) return;
         restoreInputs(savedPlan.input || {});
-        runState.textContent = `Loaded your last saved plan from ${formatDateTime(savedPlan.createdAt)}.`;
+        runState.textContent = t("loadedSavedPlan", { date: formatDateTime(savedPlan.createdAt) });
         progressBar.style.width = "100%";
         renderDone({ output: savedPlan.plan }, []);
         setStep(0);
@@ -1658,7 +1893,7 @@
         setStep(0);
         updateBackButtons();
 
-        runState.textContent = "Ready to generate.";
+        runState.textContent = t("readyToGenerate");
         progressBar.style.width = "0%";
         output.innerHTML = emptyOutputHtml();
         document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1802,7 +2037,7 @@
         const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
         if (!lastPeriodDate || lastPeriodDate > todayMidnight) {
-          document.querySelector("#gestationalAgeNote").textContent = "Select a valid past last period date.";
+          document.querySelector("#gestationalAgeNote").textContent = t("invalidLastPeriod");
           return null;
         }
 
@@ -1815,7 +2050,7 @@
         document.querySelector("#gestationalDay").value = days;
         document.querySelector("#gestationalAgeDisplay").value = `${weeks} weeks ${days} days`;
         document.querySelector("#gestationalAgeNote").textContent =
-          `Calculated gestational age: ${weeks} weeks ${days} days. Estimated due date: ${toDateInputValue(dueDate)}.`;
+          t("calculatedGestationalAge", { weeks, days, dueDate: toDateInputValue(dueDate) });
 
         return { weeks, days, dueDate: toDateInputValue(dueDate) };
       }
@@ -1953,12 +2188,22 @@
         loadAdminUsers(true);
       });
 
+      document.querySelector("#languageSelect").addEventListener("change", (event) => {
+        currentLanguage = event.target.value;
+        localStorage.setItem("mamanestnourishLanguage", currentLanguage);
+        applyLanguage();
+        if (!lastPlanData && !output.querySelector(".timeline")) {
+          output.innerHTML = emptyOutputHtml();
+        }
+      });
+
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
-      output.innerHTML = emptyOutputHtml();
       syncHeightUnitFields();
       renderConditionChips();
       renderAllergyChips();
       setAllergyInputValue();
+      applyLanguage();
+      output.innerHTML = emptyOutputHtml();
       updateProfileNotes();
       loadAuthConfig();
 
@@ -1983,7 +2228,7 @@
             return;
           }
           showSignupConfirmation(identifier);
-          setAuthMessage(`Account created for ${identifier}. Enter the confirmation code to finish signup.`);
+          setAuthMessage(`Account created for ${identifier}. ${t("confirmCodePlaceholder")}.`);
         } catch (error) {
           setAuthMessage(error.message);
         } finally {
@@ -1999,7 +2244,7 @@
             code: value("#confirmCode")
           });
           hideSignupConfirmation();
-          setAuthMessage("Account confirmed. You can log in now.");
+          setAuthMessage(t("accountConfirmed"));
         } catch (error) {
           setAuthMessage(error.message);
         } finally {
@@ -2013,7 +2258,7 @@
           await authRequest("/api/auth/resend", {
             identifier: pendingSignupIdentifier || value("#authIdentifier")
           });
-          setAuthMessage("A new confirmation code was sent.");
+          setAuthMessage(t("confirmationSent"));
         } catch (error) {
           setAuthMessage(error.message);
         } finally {
@@ -2023,7 +2268,7 @@
 
       document.querySelector("#cancelConfirmBtn").addEventListener("click", () => {
         hideSignupConfirmation();
-        setAuthMessage("Sign in with email or phone number, or create an account to generate a plan.");
+        setAuthMessage(t("signedOut"));
       });
 
       document.querySelector("#loginBtn").addEventListener("click", async () => {
@@ -2080,7 +2325,7 @@
           body: JSON.stringify({ plan: lastPlanData })
         });
         if (!response.ok) {
-          throw new Error(`Download failed: ${response.status}`);
+          throw new Error(t("downloadFailed", { status: response.status }));
         }
         const blob = await response.blob();
         const link = document.createElement("a");
@@ -2108,7 +2353,7 @@
               <path d="M64 104c11 8 25 8 36 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity="0.9" />
             </svg>
             <div>
-              <h3>Baby size this week</h3>
+              <h3>${t("babySizeThisWeek")}</h3>
               <p><strong>About the size of a ${size.comparison}</strong></p>
               <p>Approx. ${size.lengthCm} cm and ${size.weightG} g at week ${size.week}. ${size.note}</p>
             </div>
@@ -2124,7 +2369,7 @@
         if (!data.targets) {
           output.innerHTML = `
             <div class="checklist">
-              <h3>Follow-up questions</h3>
+              <h3>${t("followUpQuestions")}</h3>
               <ul>${data.followUpQuestions.map((q) => `<li>${q}</li>`).join("")}</ul>
             </div>
             <div class="event-list">${events.map(eventRow).join("")}</div>
@@ -2139,29 +2384,29 @@
         `).join("");
         const safetyBanner = data.riskRegister.length ? `
           <div class="safety-banner">
-            <strong>Review this with your care provider</strong>
+            <strong>${t("safetyProvider")}</strong>
             ${data.riskRegister[0].description} ${data.riskRegister[0].immediateAction}
           </div>
         ` : `
           <div class="safety-banner">
-            <strong>No major risk flag was found from the details provided</strong>
-            Keep using this as educational guidance and contact your care provider for new symptoms or concerns.
+            <strong>${t("noMajorRisk")}</strong>
+            ${t("noMajorRiskDetail")}
           </div>
         `;
         const dashboard = `
           <div class="result-actions">
-            <button id="editProfileBtn" class="secondary-btn" type="button">Edit profile</button>
-            <button id="printPlanBtn" class="secondary-btn" type="button">Print plan</button>
-            <button id="downloadPlanBtn" class="secondary-btn" type="button">Download</button>
-            <button id="resetPlanBtn" class="secondary-btn" type="button">Reset</button>
+            <button id="editProfileBtn" class="secondary-btn" type="button">${t("editProfile")}</button>
+            <button id="printPlanBtn" class="secondary-btn" type="button">${t("printPlan")}</button>
+            <button id="downloadPlanBtn" class="secondary-btn" type="button">${t("download")}</button>
+            <button id="resetPlanBtn" class="secondary-btn" type="button">${t("reset")}</button>
           </div>
           <div class="today-dashboard">
             ${babySizeCard(data.babySize)}
             <div class="today-card">
-              <h3>Today's plan</h3>
+              <h3>${t("todaysPlan")}</h3>
               <div class="today-list">${todayMeals}</div>
-              <p><strong>Exercise:</strong> ${todayExercise.durationMin} min ${todayExercise.activity}</p>
-              <p><strong>Hydration:</strong> ${data.targets.hydrationLiters}L across the day</p>
+              <p><strong>${t("exercise")}:</strong> ${todayExercise.durationMin} min ${todayExercise.activity}</p>
+              <p><strong>${t("hydration")}:</strong> ${data.targets.hydrationLiters}L across the day</p>
               <div class="hydration-track" aria-label="Hydration progress preview"><span></span></div>
             </div>
           </div>
@@ -2201,9 +2446,9 @@
 
         const options = data.weeklyPlan[0].dailyPlan.optionBank;
         const optionCards = [
-          ["Breakfast options", options.breakfast],
-          ["Lunch options", options.lunch],
-          ["Dinner options", options.dinner]
+          [t("breakfastOptions"), options.breakfast],
+          [t("lunchOptions"), options.lunch],
+          [t("dinnerOptions"), options.dinner]
         ].map(([title, items]) => `
           <div class="option-card">
             <h3>${title}</h3>
@@ -2212,7 +2457,7 @@
         `);
         const focusCard = `
           <div class="focus-card">
-            <h3>Healthy focus</h3>
+            <h3>${t("healthyFocus")}</h3>
             <ul>${options.healthyFocus.map((item) => `<li>${item}</li>`).join("")}</ul>
             ${options.allergyNotes?.length ? `<ul>${options.allergyNotes.map((item) => `<li>${item}</li>`).join("")}</ul>` : ""}
           </div>
@@ -2237,28 +2482,28 @@
         output.innerHTML = `
           ${dashboard}
           <div class="summary-grid">
-            <div class="metric"><span>Gestational age</span><strong>${data.profile.gestationalAgeLabel || `${data.profile.gestationalWeek}w ${data.profile.gestationalDay || 0}d`}</strong></div>
+            <div class="metric"><span>${t("weekAndDay")}</span><strong>${data.profile.gestationalAgeLabel || `${data.profile.gestationalWeek}w ${data.profile.gestationalDay || 0}d`}</strong></div>
             <div class="metric"><span>BMR</span><strong>${data.targets.bmrKcal}</strong></div>
             <div class="metric"><span>Calories</span><strong>${data.targets.recommendedDailyCaloriesMin}-${data.targets.recommendedDailyCaloriesMax}</strong></div>
             <div class="metric"><span>Protein</span><strong>${data.targets.recommendedDailyProteinG}g</strong></div>
-            <div class="metric"><span>Hydration</span><strong>${data.targets.hydrationLiters}L</strong></div>
+            <div class="metric"><span>${t("hydration")}</span><strong>${data.targets.hydrationLiters}L</strong></div>
           </div>
           <div>
-            <h3>Healthy variety options</h3>
+            <h3>${t("healthyVarietyOptions")}</h3>
             <div class="option-grid">${optionCards.join("")}</div>
           </div>
           ${focusCard}
           <div>
-            <h3>Milk and healthy food recommendations</h3>
+            <h3>${t("milkRecommendations")}</h3>
             <div class="option-grid">${nutritionCards.join("")}</div>
           </div>
           ${microCard}
           <div>
-            <h3>Seven-day plan</h3>
+            <h3>${t("sevenDayPlan")}</h3>
             <div class="days">${days.join("")}</div>
           </div>
           <details>
-            <summary>Machine-readable JSON</summary>
+            <summary>${t("machineJson")}</summary>
             <pre>${JSON.stringify(data, null, 2)}</pre>
           </details>
         `;
@@ -2270,7 +2515,7 @@
         const events = [];
         let buffer = "";
         submitBtn.disabled = true;
-        runState.textContent = "Generating plan...";
+        runState.textContent = t("generatingPlan");
         progressBar.style.width = "8%";
         output.innerHTML = `
           ${timelineHtml("extractProfile")}
@@ -2318,7 +2563,7 @@
             }
           }
         } catch (error) {
-          runState.textContent = "Could not generate the plan.";
+          runState.textContent = t("couldNotGenerate");
           output.innerHTML = `<div class="alert">${error.message}</div>`;
         } finally {
           submitBtn.disabled = false;

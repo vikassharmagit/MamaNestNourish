@@ -204,6 +204,7 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.match(pageHtml, /Step 3 of 3/);
     assert.doesNotMatch(pageHtml, /data-step="3"/);
     assert.doesNotMatch(pageHtml, />Review<\/div>/);
+    assert.match(pageHtml, /id="languageSelect"/);
     assert.match(pageHtml, /id="conditionChips"/);
     assert.match(pageHtml, /id="allergyChips"/);
     assert.match(pageHtml, /id="printPlanBtn"/);
@@ -211,7 +212,7 @@ test("server starts and allows local planning when Cognito is not configured", a
     assert.match(pageHtml, /id="resetPlanBtn"/);
     assert.doesNotMatch(pageHtml, /id="regenerateBtn"/);
     assert.match(pageHtml, /<textarea id="profileText" readonly>/);
-    assert.match(pageHtml, />Download<\/button>/);
+    assert.match(pageHtml, /download: "Download"/);
 
     const logoResponse = await fetch(`${baseUrl}/assets/MamaNestNourish.png`);
     assert.equal(logoResponse.status, 200);
