@@ -314,7 +314,7 @@
 
       .stepper {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 6px;
         margin-top: 16px;
       }
@@ -1148,10 +1148,9 @@
         <p>Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.</p>
 
         <div class="stepper" aria-label="Plan setup steps">
-          <div class="step-pill active" data-step-pill="0"><span>1</span>Pregnancy</div>
-          <div class="step-pill" data-step-pill="1"><span>2</span>Health</div>
-          <div class="step-pill" data-step-pill="2"><span>3</span>Food</div>
-          <div class="step-pill" data-step-pill="3"><span>4</span>Review</div>
+          <div class="step-pill active" data-step-pill="0"><span>1</span>Pregnancy details</div>
+          <div class="step-pill" data-step-pill="1"><span>2</span>Health & allergies</div>
+          <div class="step-pill" data-step-pill="2"><span>3</span>Food & lifestyle</div>
         </div>
 
         <form id="planForm">
@@ -1191,7 +1190,7 @@
               </label>
             </div>
             <div class="step-actions">
-              <span class="field-note">Step 1 of 4</span>
+              <span class="field-note">Step 1 of 3</span>
               <button class="nextStepBtn" type="button">Next</button>
             </div>
           </div>
@@ -1235,6 +1234,7 @@
               <span class="field-note">Selected allergies are used across meals, snacks, healthy focus, and recommendations.</span>
             </label>
             <div class="step-actions">
+              <span class="field-note">Step 2 of 3</span>
               <button class="prevStepBtn secondary-btn" type="button">Back</button>
               <button class="nextStepBtn" type="button">Next</button>
             </div>
@@ -1272,19 +1272,13 @@
                 <option value="I am mostly resting at home">Mostly resting at home</option>
               </select>
             </label>
-            <div class="step-actions">
-              <button class="prevStepBtn secondary-btn" type="button">Back</button>
-              <button class="nextStepBtn" type="button">Next</button>
-            </div>
-          </div>
-
-          <div class="form-step" data-step="3">
             <label>
               Profile notes
               <textarea id="profileText" readonly></textarea>
               <span class="field-note">This summary is generated from the previous steps.</span>
             </label>
             <div class="step-actions">
+              <span class="field-note">Step 3 of 3</span>
               <button class="prevStepBtn secondary-btn" type="button">Back</button>
               <button id="submitBtn" type="submit">Generate plan</button>
             </div>
@@ -1380,7 +1374,7 @@
       }
 
       function setStep(index) {
-        currentStep = Math.max(0, Math.min(3, index));
+        currentStep = Math.max(0, Math.min(2, index));
         document.querySelectorAll("[data-step]").forEach((step) => {
           step.classList.toggle("active", Number(step.dataset.step) === currentStep);
         });

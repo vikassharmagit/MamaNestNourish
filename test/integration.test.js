@@ -198,6 +198,12 @@ test("server starts and allows local planning when Cognito is not configured", a
     const pageHtml = await pageResponse.text();
     assert.equal(pageResponse.status, 200);
     assert.match(pageHtml, /data-step="0"/);
+    assert.match(pageHtml, /Pregnancy details/);
+    assert.match(pageHtml, /Health & allergies/);
+    assert.match(pageHtml, /Food & lifestyle/);
+    assert.match(pageHtml, /Step 3 of 3/);
+    assert.doesNotMatch(pageHtml, /data-step="3"/);
+    assert.doesNotMatch(pageHtml, />Review<\/div>/);
     assert.match(pageHtml, /id="conditionChips"/);
     assert.match(pageHtml, /id="allergyChips"/);
     assert.match(pageHtml, /id="printPlanBtn"/);
