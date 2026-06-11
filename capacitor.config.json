@@ -1,0 +1,12 @@
+{
+  "appId": "com.mamanestnourish.app",
+  "appName": "MamaNestNourish",
+  "webDir": "public",
+  "server": {
+    "url": "http://54.86.219.63",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}

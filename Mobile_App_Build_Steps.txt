@@ -1,0 +1,45 @@
+MamaNestNourish Android APK build steps
+
+Overview
+- The Android app is built with Capacitor.
+- Package id: com.mamanestnourish.app
+- App name: MamaNestNourish
+- The APK loads the deployed AWS app at http://54.86.219.63.
+- Debug APK output: android/app/build/outputs/apk/debug/app-debug.apk
+
+Local prerequisites
+- Node.js 20+
+- npm
+- Android SDK with platform-tools, Android platform 36, and build-tools
+- JDK 21
+
+This machine setup
+- Android SDK: C:\Users\vikas\Android\Sdk
+- JDK 21: C:\Users\vikas\Java\jdk-21
+
+Build commands
+1. Install dependencies:
+   npm install
+
+2. Set build environment in PowerShell:
+   $env:JAVA_HOME = "$env:USERPROFILE\Java\jdk-21"
+   $env:Path = "$env:JAVA_HOME\bin;$env:Path"
+   $env:ANDROID_HOME = "$env:USERPROFILE\Android\Sdk"
+   $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
+
+3. Sync Capacitor Android files:
+   npm run android:sync
+
+4. Build debug APK:
+   npm run android:apk
+
+5. APK location:
+   android\app\build\outputs\apk\debug\app-debug.apk
+
+Install on Android phone
+- Copy MamaNestNourish-debug.apk or app-debug.apk to the phone.
+- Open the file on Android and allow installation from unknown sources if prompted.
+- The phone must have internet access because the APK loads the AWS-hosted app.
+
+Future release note
+- For Play Store or production sharing, create a signed release APK/AAB and move the AWS app to HTTPS/domain instead of HTTP.

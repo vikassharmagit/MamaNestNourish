@@ -7,12 +7,20 @@
     "start": "node src/server.js",
     "test": "node --test",
     "update:sources": "node scripts/updateDataSources.js",
-    "validate:sources": "node scripts/validateSourceData.js"
+    "validate:sources": "node scripts/validateSourceData.js",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:apk": "cd android && gradlew.bat assembleDebug"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.1061.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0"
   }
 }
