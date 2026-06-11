@@ -63,6 +63,10 @@
         box-sizing: border-box;
       }
 
+      html {
+        overflow-x: hidden;
+      }
+
       [hidden] {
         display: none !important;
       }
@@ -74,6 +78,7 @@
         background:
           linear-gradient(180deg, var(--page-start) 0, var(--page-mid) 260px, var(--page) 100%);
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        overflow-x: hidden;
       }
 
       body.auth-locked {
@@ -217,6 +222,7 @@
         display: grid;
         grid-template-columns: minmax(120px, 1fr) minmax(110px, 0.8fr) auto auto;
         gap: 8px;
+        align-items: stretch;
       }
 
       .auth-row.confirm {
@@ -392,7 +398,7 @@
 
       form {
         display: grid;
-        gap: 14px;
+        gap: 16px;
         margin-top: 18px;
       }
 
@@ -439,14 +445,13 @@
 
       .form-step {
         display: none;
-        gap: 14px;
+        gap: 16px;
       }
 
       .form-step.active {
         display: grid;
       }
 
-      .step-actions,
       .result-actions {
         display: flex;
         flex-wrap: wrap;
@@ -455,12 +460,15 @@
       }
 
       .step-actions {
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 8px;
+        align-items: center;
         padding-top: 4px;
       }
 
       .step-actions .field-note {
-        margin-right: auto;
+        min-width: 0;
       }
 
       .step-actions button {
@@ -524,6 +532,7 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 8px;
+        align-items: stretch;
       }
 
       .inline-add input,
@@ -536,7 +545,7 @@
         display: grid;
         grid-template-rows: 18px minmax(42px, auto) 34px;
         align-content: start;
-        gap: 6px;
+        gap: 8px;
         min-height: 100px;
         color: var(--ink);
         font-size: 13px;
@@ -574,6 +583,7 @@
         color: var(--ink);
         background: var(--field);
         font: inherit;
+        font-size: 14px;
         transition: border-color 160ms ease, box-shadow 160ms ease;
       }
 
@@ -609,7 +619,7 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         align-items: start;
-        gap: 12px;
+        gap: 14px;
       }
 
       .profile-grid {
@@ -654,6 +664,7 @@
         color: #fff;
         background: var(--primary);
         font: inherit;
+        font-size: 14px;
         font-weight: 750;
         cursor: pointer;
         box-shadow: 0 10px 22px var(--button-shadow);
@@ -1104,6 +1115,11 @@
       }
 
       @media (max-width: 900px) {
+        .topbar,
+        main {
+          width: min(720px, calc(100% - 28px));
+        }
+
         main,
         .summary-grid,
         .days,
@@ -1122,19 +1138,44 @@
       }
 
       @media (max-width: 560px) {
+        body {
+          background:
+            linear-gradient(180deg, var(--page-start) 0, var(--page-mid) 180px, var(--page) 100%);
+        }
+
+        .topbar,
+        main {
+          width: calc(100% - 20px);
+        }
+
         .topbar {
           align-items: flex-start;
           flex-direction: column;
-          padding: 14px 0;
+          gap: 12px;
+          min-height: 0;
+          padding: 12px 0;
         }
 
         .topbar-controls {
           width: 100%;
-          justify-content: flex-start;
+          align-items: stretch;
+          justify-content: space-between;
+        }
+
+        .language-select,
+        .theme-toggle {
+          flex: 1;
+        }
+
+        .theme-option {
+          flex: 1;
+          min-width: 0;
+          padding: 0 8px;
         }
 
         .auth-row {
           grid-template-columns: 1fr;
+          gap: 10px;
         }
 
         .auth-actions {
@@ -1142,15 +1183,107 @@
           flex-direction: column;
         }
 
+        main {
+          gap: 14px;
+          padding: 14px 0;
+        }
+
+        .panel,
+        .admin-panel {
+          padding: 14px;
+        }
+
+        h1 {
+          font-size: 22px;
+        }
+
+        form,
+        .form-step {
+          gap: 14px;
+        }
+
         .grid {
           grid-template-columns: 1fr;
+          gap: 12px;
         }
 
         .stepper {
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+
+        .step-pill {
+          grid-template-columns: 26px 1fr;
+          align-items: center;
+          min-height: 44px;
+        }
+
+        label,
+        label:has(.height-row),
+        label:has(textarea) {
+          grid-template-rows: auto auto auto;
+          gap: 7px;
+          min-height: 0;
+        }
+
+        label:has(.chip-group) {
+          grid-template-rows: auto auto auto auto;
+          min-height: 0;
+        }
+
+        label:has(#conditionChips) {
+          grid-template-rows: auto auto;
+          min-height: 0;
+        }
+
+        .field-note {
+          min-height: 0;
+        }
+
+        input,
+        select,
+        textarea,
+        button {
+          font-size: 16px;
+        }
+
+        .height-row,
+        .height-row.ft-mode {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+
+        .chip-group {
+          height: auto;
+          min-height: 0;
+          max-height: 220px;
+          gap: 7px;
+          padding: 8px;
+        }
+
+        #conditionChips {
+          height: auto;
+          min-height: 0;
+          max-height: 260px;
         }
 
         .inline-add {
+          grid-template-columns: 1fr;
+        }
+
+        .step-actions {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .step-actions button,
+        .result-actions button,
+        #refreshAdminBtn {
+          width: 100%;
+        }
+
+        .result-actions {
+          display: grid;
           grid-template-columns: 1fr;
         }
 
@@ -1173,10 +1306,51 @@
         .result-head {
           align-items: flex-start;
           flex-direction: column;
+          padding: 14px;
         }
 
         .progress {
           width: 100%;
+        }
+
+        .content {
+          gap: 12px;
+          padding: 14px;
+        }
+
+        .today-card,
+        .metric,
+        .day,
+        .checklist,
+        .option-card,
+        .micro-card,
+        .focus-card {
+          padding: 12px;
+        }
+
+        .summary-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .meal-row {
+          grid-template-columns: 44px 1fr;
+          gap: 8px;
+        }
+      }
+
+      @media (max-width: 380px) {
+        .summary-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .brand {
+          gap: 10px;
+          font-size: 18px;
+        }
+
+        .mark {
+          width: 48px;
+          height: 48px;
         }
       }
 
