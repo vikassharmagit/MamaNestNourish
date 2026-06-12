@@ -573,7 +573,7 @@
       }
 
       label:has(.height-row) {
-        grid-template-rows: 18px 42px 34px;
+        grid-template-rows: 18px auto 34px;
       }
 
       input,
@@ -645,17 +645,62 @@
 
       .height-row {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 92px;
+        gap: 10px;
+      }
+
+      .height-unit-toggle {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--field);
+      }
+
+      .height-unit-option {
+        min-height: 34px;
+        border-radius: 6px;
+        padding: 0 10px;
+        background: transparent;
+        color: var(--muted);
+        box-shadow: none;
+        font-size: 13px;
+      }
+
+      .height-unit-option[aria-pressed="true"] {
+        background: var(--primary);
+        color: #ffffff;
+      }
+
+      .height-inputs {
+        display: grid;
+        grid-template-columns: 1fr;
         gap: 8px;
       }
 
-      .height-row.ft-mode {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 92px;
+      .height-inputs.ft-mode {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .height-row input,
-      .height-row select {
-        height: 42px;
+      .height-box {
+        display: grid;
+        grid-template-rows: auto auto;
+        gap: 5px;
+        min-height: 0;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .height-box span {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      .height-box[hidden] {
+        display: none;
       }
 
       button {
@@ -1262,7 +1307,8 @@
         }
 
         .height-row,
-        .height-row.ft-mode {
+        .height-inputs,
+        .height-inputs.ft-mode {
           grid-template-columns: 1fr;
           gap: 8px;
         }
@@ -1503,12 +1549,21 @@
               <label class="age-field">
                 <span data-i18n="heightCm">Height cm</span>
                 <div class="height-row">
-                  <input id="heightValue" type="number" min="1" step="0.1" value="165" />
-                  <input id="heightInches" type="number" min="0" max="11" step="1" value="0" aria-label="Height inches" hidden />
-                  <select id="heightUnit" aria-label="Height unit">
-                    <option value="cm" selected>cm</option>
-                    <option value="ft">ft/in</option>
-                  </select>
+                  <div class="height-unit-toggle" role="group" aria-label="Height unit">
+                    <button class="height-unit-option" type="button" data-height-unit="cm" aria-pressed="true">cm</button>
+                    <button class="height-unit-option" type="button" data-height-unit="ft" aria-pressed="false">ft/in</button>
+                  </div>
+                  <div class="height-inputs">
+                    <div class="height-box">
+                      <span id="heightPrimaryLabel">Height (cm)</span>
+                      <input id="heightValue" type="number" min="1" step="0.1" value="165" aria-labelledby="heightPrimaryLabel" />
+                    </div>
+                    <div class="height-box" id="heightInchesBox" hidden>
+                      <span id="heightInchesLabel">Inches</span>
+                      <input id="heightInches" type="number" min="0" max="11" step="1" value="0" aria-labelledby="heightInchesLabel" />
+                    </div>
+                  </div>
+                  <input id="heightUnit" type="hidden" value="cm" />
                 </div>
                 <span id="heightNote" class="field-note">165 cm</span>
                 <input id="heightCm" type="hidden" value="165" />
@@ -2272,9 +2327,14 @@
 
       function syncHeightUnitFields() {
         const unit = value("#heightUnit");
-        const heightRow = document.querySelector(".height-row");
+        const heightInputs = document.querySelector(".height-inputs");
         const heightValue = document.querySelector("#heightValue");
         const heightInches = document.querySelector("#heightInches");
+        const heightInchesBox = document.querySelector("#heightInchesBox");
+        const heightPrimaryLabel = document.querySelector("#heightPrimaryLabel");
+        document.querySelectorAll("[data-height-unit]").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.heightUnit === unit));
+        });
 
         if (unit === "ft") {
           const currentCm = Number(document.querySelector("#heightCm").value || heightValue.value);
@@ -2285,10 +2345,11 @@
           heightValue.step = 1;
           heightValue.placeholder = "ft";
           heightValue.setAttribute("aria-label", "Height feet");
+          heightPrimaryLabel.textContent = "Feet";
           heightInches.value = clampNumber(converted.inches, 0, 11);
           heightInches.placeholder = "in";
-          heightInches.hidden = false;
-          heightRow.classList.add("ft-mode");
+          heightInchesBox.hidden = false;
+          heightInputs.classList.add("ft-mode");
         } else {
           const feet = Number(heightValue.value);
           const inches = Number(heightInches.value);
@@ -2299,8 +2360,9 @@
           heightValue.step = 0.1;
           heightValue.placeholder = "cm";
           heightValue.setAttribute("aria-label", "Height centimeters");
-          heightInches.hidden = true;
-          heightRow.classList.remove("ft-mode");
+          heightPrimaryLabel.textContent = "Height (cm)";
+          heightInchesBox.hidden = true;
+          heightInputs.classList.remove("ft-mode");
         }
       }
 
@@ -2450,7 +2512,10 @@
         document.querySelector(selector).addEventListener("change", updateProfileNotes);
       });
 
-      document.querySelector("#heightUnit").addEventListener("change", () => {
+      document.querySelector(".height-unit-toggle").addEventListener("click", (event) => {
+        const button = event.target.closest("[data-height-unit]");
+        if (!button) return;
+        document.querySelector("#heightUnit").value = button.dataset.heightUnit;
         syncHeightUnitFields();
         updateProfileNotes();
       });
