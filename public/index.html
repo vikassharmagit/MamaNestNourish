@@ -422,6 +422,11 @@
         font-weight: 750;
       }
 
+      .step-pill b {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
       .step-pill span {
         display: grid;
         place-items: center;
@@ -1208,14 +1213,23 @@
         }
 
         .stepper {
-          grid-template-columns: 1fr;
-          gap: 8px;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 5px;
         }
 
         .step-pill {
-          grid-template-columns: 26px 1fr;
+          grid-template-columns: 22px minmax(0, 1fr);
           align-items: center;
-          min-height: 44px;
+          min-height: 48px;
+          padding: 7px 6px;
+          font-size: 10px;
+          line-height: 1.15;
+        }
+
+        .step-pill span {
+          width: 22px;
+          height: 22px;
+          font-size: 11px;
         }
 
         label,
@@ -1277,14 +1291,23 @@
         }
 
         .step-actions button,
-        .result-actions button,
         #refreshAdminBtn {
           width: 100%;
         }
 
         .result-actions {
           display: grid;
-          grid-template-columns: 1fr;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 6px;
+        }
+
+        .result-actions button {
+          width: 100%;
+          min-width: 0;
+          min-height: 40px;
+          padding: 0 6px;
+          font-size: 12px;
+          line-height: 1.15;
         }
 
         .profile-grid .age-field:last-child {
@@ -1351,6 +1374,31 @@
         .mark {
           width: 48px;
           height: 48px;
+        }
+
+        .stepper {
+          gap: 4px;
+        }
+
+        .step-pill {
+          grid-template-columns: 20px minmax(0, 1fr);
+          padding: 6px 4px;
+          font-size: 9px;
+        }
+
+        .step-pill span {
+          width: 20px;
+          height: 20px;
+          font-size: 10px;
+        }
+
+        .result-actions {
+          gap: 4px;
+        }
+
+        .result-actions button {
+          padding: 0 4px;
+          font-size: 11px;
         }
       }
 
@@ -1429,9 +1477,9 @@
         <p data-i18n="mainSubtitle">Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.</p>
 
         <div class="stepper" aria-label="Plan setup steps">
-          <div class="step-pill active" data-step-pill="0"><span>1</span><b data-i18n="stepPregnancy">Pregnancy details</b></div>
-          <div class="step-pill" data-step-pill="1"><span>2</span><b data-i18n="stepHealth">Health & allergies</b></div>
-          <div class="step-pill" data-step-pill="2"><span>3</span><b data-i18n="stepFood">Food & lifestyle</b></div>
+          <div class="step-pill active" data-step-pill="0"><span>1</span><b data-i18n="stepPregnancy">Pregnancy Details</b></div>
+          <div class="step-pill" data-step-pill="1"><span>2</span><b data-i18n="stepHealth">Health & Allergies</b></div>
+          <div class="step-pill" data-step-pill="2"><span>3</span><b data-i18n="stepFood">Food & Lifestyle</b></div>
         </div>
 
         <form id="planForm">
@@ -1630,9 +1678,9 @@
           confirmationSent: "A new confirmation code was sent.",
           mainTitle: "Build a safe weekly plan",
           mainSubtitle: "Move through each step, then generate a structured plan with safety flags, meals, hydration, and exercise guidance.",
-          stepPregnancy: "Pregnancy details",
-          stepHealth: "Health & allergies",
-          stepFood: "Food & lifestyle",
+          stepPregnancy: "Pregnancy Details",
+          stepHealth: "Health & Allergies",
+          stepFood: "Food & Lifestyle",
           lastPeriodDate: "Last period date",
           lastPeriodHint: "Select the first day of the last period.",
           invalidLastPeriod: "Select a valid past last period date.",
