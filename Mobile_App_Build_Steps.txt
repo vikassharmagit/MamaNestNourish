@@ -5,6 +5,7 @@ Overview
 - Package id: com.mamanestnourish.app
 - App name: MamaNestNourish
 - The APK loads the deployed AWS app at http://54.86.219.63.
+- Current app version: 0.2.0
 - Debug APK output: android/app/build/outputs/apk/debug/app-debug.apk
 
 Local prerequisites
@@ -36,6 +37,25 @@ Build commands
 5. APK location:
    android\app\build\outputs\apk\debug\app-debug.apk
 
+Signed release APK/AAB
+1. Create or provide a release keystore. Keep it private and do not commit it.
+
+2. Set signing environment variables in PowerShell:
+   $env:MAMANEST_RELEASE_STORE_FILE = "C:\path\to\mamanest-release.jks"
+   $env:MAMANEST_RELEASE_STORE_PASSWORD = "your-store-password"
+   $env:MAMANEST_RELEASE_KEY_ALIAS = "mamanest"
+   $env:MAMANEST_RELEASE_KEY_PASSWORD = "your-key-password"
+
+3. Build signed release APK:
+   npm run android:release:apk
+
+4. Build release AAB for Play Store:
+   npm run android:release:aab
+
+5. Outputs:
+   android\app\build\outputs\apk\release\app-release.apk
+   android\app\build\outputs\bundle\release\app-release.aab
+
 Install on Android phone
 - Copy MamaNestNourish-debug.apk or app-debug.apk to the phone.
 - Open the file on Android and allow installation from unknown sources if prompted.
@@ -43,3 +63,15 @@ Install on Android phone
 
 Future release note
 - For Play Store or production sharing, create a signed release APK/AAB and move the AWS app to HTTPS/domain instead of HTTP.
+
+Implemented mobile upgrades
+- Native Android version is set to 0.2.0.
+- App Info screen is available from the top bar in the app.
+- Last generated/restored plan is cached in browser storage as an offline fallback.
+- Native splash images are generated from the MamaNestNourish logo.
+- Android notification permission is declared for future push reminders.
+
+Pending external setup
+- Push notifications require Firebase Cloud Messaging and an Android google-services.json file.
+- Biometric login requires choosing and adding a Capacitor biometric plugin, then testing on a real device.
+- Production release should use HTTPS/domain before Play Store distribution.

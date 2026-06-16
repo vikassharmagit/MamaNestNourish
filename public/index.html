@@ -256,6 +256,18 @@
         box-shadow: 0 8px 20px var(--shadow);
       }
 
+      .app-info-btn {
+        min-height: 36px;
+        width: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0;
+        background: var(--field);
+        color: var(--primary);
+        box-shadow: 0 8px 20px var(--shadow);
+        font-size: 14px;
+      }
+
       .auth-actions {
         display: flex;
         align-items: center;
@@ -267,6 +279,44 @@
         color: var(--muted);
         font-size: 12px;
         line-height: 1.35;
+      }
+
+      .app-modal {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: rgba(12, 22, 28, 0.42);
+        z-index: 20;
+      }
+
+      .app-modal-card {
+        width: min(420px, 100%);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        background: var(--panel);
+        box-shadow: 0 24px 70px var(--shadow);
+      }
+
+      .app-modal-card dl {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 8px 12px;
+        margin: 14px 0;
+        font-size: 13px;
+      }
+
+      .app-modal-card dt {
+        color: var(--muted);
+        font-weight: 750;
+      }
+
+      .app-modal-card dd {
+        margin: 0;
+        color: var(--ink);
+        overflow-wrap: anywhere;
       }
 
       main {
@@ -1535,6 +1585,7 @@
             <button class="theme-option" type="button" data-theme-option="light" aria-pressed="true">Light</button>
             <button class="theme-option" type="button" data-theme-option="dark" aria-pressed="false">Dark</button>
           </div>
+          <button id="appInfoBtn" class="app-info-btn" type="button" aria-label="App info">i</button>
         </div>
         <div class="auth-card" id="authCard">
           <div class="status" data-i18n="authTitle">Week-by-week pregnancy planning API demo</div>
@@ -1736,12 +1787,33 @@
       </section>
     </main>
 
+    <div id="appInfoModal" class="app-modal" hidden>
+      <div class="app-modal-card" role="dialog" aria-modal="true" aria-labelledby="appInfoTitle">
+        <h2 id="appInfoTitle">App info</h2>
+        <dl>
+          <dt>App</dt>
+          <dd>MamaNestNourish</dd>
+          <dt>Version</dt>
+          <dd id="appVersionText">0.2.0</dd>
+          <dt>Android package</dt>
+          <dd>com.mamanestnourish.app</dd>
+          <dt>Server</dt>
+          <dd>http://54.86.219.63</dd>
+          <dt>Offline cache</dt>
+          <dd id="offlineCacheStatus">Not checked</dd>
+        </dl>
+        <button id="closeAppInfoBtn" class="secondary-btn" type="button">Close</button>
+      </div>
+    </div>
+
     <script>
       const form = document.querySelector("#planForm");
       const output = document.querySelector("#output");
       const runState = document.querySelector("#runState");
       const progressBar = document.querySelector("#progressBar");
       const submitBtn = document.querySelector("#submitBtn");
+      const APP_VERSION = "0.2.0";
+      const OFFLINE_PLAN_CACHE_KEY = "mamanestnourishLastPlanCache";
       let authConfigured = false;
       let authTokens = JSON.parse(localStorage.getItem("mamanestnourishTokens") || "null");
       let pendingSignupIdentifier = "";
@@ -1991,6 +2063,30 @@
           .replaceAll(">", "&gt;")
           .replaceAll('"', "&quot;")
           .replaceAll("'", "&#39;");
+      }
+
+      function cacheSavedPlan(savedPlan) {
+        if (!savedPlan?.plan) return;
+        localStorage.setItem(OFFLINE_PLAN_CACHE_KEY, JSON.stringify({
+          ...savedPlan,
+          cachedAt: new Date().toISOString()
+        }));
+      }
+
+      function getCachedSavedPlan() {
+        try {
+          const cached = JSON.parse(localStorage.getItem(OFFLINE_PLAN_CACHE_KEY) || "null");
+          return cached?.plan ? cached : null;
+        } catch {
+          return null;
+        }
+      }
+
+      function updateOfflineCacheStatus() {
+        const cached = getCachedSavedPlan();
+        document.querySelector("#offlineCacheStatus").textContent = cached
+          ? `Last plan cached ${formatDateTime(cached.cachedAt || cached.createdAt)}`
+          : "No cached plan yet";
       }
 
       function formatDateTime(value) {
@@ -2270,10 +2366,11 @@
 
       function restoreSavedPlan(savedPlan) {
         if (!savedPlan?.plan) return;
+        cacheSavedPlan(savedPlan);
         restoreInputs(savedPlan.input || {});
         runState.textContent = t("loadedSavedPlan", { date: formatDateTime(savedPlan.createdAt) });
         progressBar.style.width = "100%";
-        renderDone({ output: savedPlan.plan }, []);
+        renderDone({ output: savedPlan.plan, restoredSavedPlan: true }, []);
         setStep(0);
       }
 
@@ -2291,6 +2388,11 @@
           if (latestPlan) restoreSavedPlan(latestPlan);
         } catch {
           savedUserLoaded = true;
+          const cachedPlan = getCachedSavedPlan();
+          if (cachedPlan) {
+            restoreSavedPlan(cachedPlan);
+            runState.textContent = `Loaded cached offline plan from ${formatDateTime(cachedPlan.cachedAt || cachedPlan.createdAt)}.`;
+          }
         }
       }
 
@@ -2641,6 +2743,22 @@
         applyTheme();
       });
 
+      document.querySelector("#appInfoBtn").addEventListener("click", () => {
+        document.querySelector("#appVersionText").textContent = APP_VERSION;
+        updateOfflineCacheStatus();
+        document.querySelector("#appInfoModal").hidden = false;
+      });
+
+      document.querySelector("#closeAppInfoBtn").addEventListener("click", () => {
+        document.querySelector("#appInfoModal").hidden = true;
+      });
+
+      document.querySelector("#appInfoModal").addEventListener("click", (event) => {
+        if (event.target.id === "appInfoModal") {
+          document.querySelector("#appInfoModal").hidden = true;
+        }
+      });
+
       document.querySelector("#lastPeriodDate").value = toDateInputValue(new Date());
       syncHeightUnitFields();
       renderConditionChips();
@@ -2822,6 +2940,13 @@
             <div class="event-list">${events.map(eventRow).join("")}</div>
           `;
           return;
+        }
+        if (!done.restoredSavedPlan) {
+          cacheSavedPlan({
+            createdAt: new Date().toISOString(),
+            input: payload(),
+            plan: data
+          });
         }
 
         const today = data.weeklyPlan[0].dailyPlan;

@@ -1,6 +1,6 @@
 {
   "name": "mama-nest-nourish",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,7 +10,9 @@
     "validate:sources": "node scripts/validateSourceData.js",
     "android:sync": "npx cap sync android",
     "android:open": "npx cap open android",
-    "android:apk": "cd android && gradlew.bat assembleDebug"
+    "android:apk": "cd android && gradlew.bat assembleDebug",
+    "android:release:apk": "cd android && gradlew.bat assembleRelease",
+    "android:release:aab": "cd android && gradlew.bat bundleRelease"
   },
   "engines": {
     "node": ">=20"
