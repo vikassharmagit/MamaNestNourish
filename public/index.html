@@ -2870,7 +2870,11 @@
           document.querySelector(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
         }
         if (event.target.closest("#printPlanBtn")) {
-          window.print();
+          if (window.AndroidInterface && window.AndroidInterface.print) {
+            window.AndroidInterface.print();
+          } else {
+            window.print();
+          }
         }
         if (event.target.closest("#downloadPlanBtn") && lastPlanData) {
           downloadPlanDocx().catch((error) => {
@@ -2892,11 +2896,23 @@
           throw new Error(t("downloadFailed", { status: response.status }));
         }
         const blob = await response.blob();
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `MamaNestNourish-week-${lastPlanData.profile.gestationalWeek ?? "plan"}.docx`;
-        link.click();
-        URL.revokeObjectURL(link.href);
+        const fileName = `MamaNestNourish-week-${lastPlanData.profile.gestationalWeek ?? "plan"}.docx`;
+        const mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+        if (window.AndroidInterface && window.AndroidInterface.downloadFile) {
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            const base64Data = reader.result.split(",")[1];
+            window.AndroidInterface.downloadFile(base64Data, fileName, mimeType);
+          };
+          reader.readAsDataURL(blob);
+        } else {
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = fileName;
+          link.click();
+          URL.revokeObjectURL(link.href);
+        }
       }
 
       function eventRow(event) {
