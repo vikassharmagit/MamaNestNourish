@@ -245,5 +245,99 @@
       "Gaining an appropriate amount of weight during pregnancy helps your baby grow to a healthy size.",
       "According to experts , gaining too much weight during pregnancy raises your chances for developing gestational diabetes (diabetes during pregnancy) and high blood pressure during pregnancy."
     ]
+  },
+  {
+    "id": "icmr-nin-dietary-guidelines",
+    "name": "ICMR-NIN Dietary Guidelines for Indians 2024",
+    "url": "https://www.nin.res.in",
+    "category": "nutrition-guidance",
+    "sourceCategory": "meals-snacks-nutrition-values",
+    "sourcePriority": 2,
+    "reviewRequired": true,
+    "reviewStatus": "approved",
+    "lastCheckedAt": "2026-06-18T00:00:00.000Z",
+    "lastFetchedAt": "2026-06-18T00:00:00.000Z",
+    "lastReviewedAt": "2026-06-18",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": "",
+    "title": "National Institute of Nutrition — ICMR",
+    "description": "The ICMR-NIN publishes the Dietary Guidelines for Indians (DGI 2024) covering recommended dietary allowances, balanced diet charts, and specific guidance for pregnancy and lactation including Indian staple foods such as dal, roti, rice, idli, and millets.",
+    "guidanceSnippets": [
+      "The Dietary Guidelines for Indians 2024 provide food-based recommendations for all life stages including pregnancy and lactation, emphasising balanced intake of cereals, pulses, vegetables, fruits, milk, and animal foods.",
+      "Pregnant women need additional energy (approximately 350 kcal/day in the second and third trimester) and protein (additional 23 g/day) above normal adult requirements.",
+      "Iron-rich foods such as green leafy vegetables, legumes, and fortified cereals combined with vitamin C sources improve absorption and help prevent anaemia in pregnancy.",
+      "Indian staple foods including dal, roti, rice, idli, dosa, poha, upma, and curd form the basis of a balanced pregnancy diet when consumed in appropriate quantities and combinations."
+    ]
+  },
+  {
+    "id": "nhm-antenatal-care",
+    "name": "National Health Mission — Antenatal Care & Maternal Nutrition",
+    "url": "https://nhm.gov.in",
+    "category": "antenatal-guidance",
+    "sourceCategory": "safety-warnings",
+    "sourcePriority": 2,
+    "reviewRequired": true,
+    "reviewStatus": "approved",
+    "lastCheckedAt": "2026-06-18T00:00:00.000Z",
+    "lastFetchedAt": "2026-06-18T00:00:00.000Z",
+    "lastReviewedAt": "2026-06-18",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": "",
+    "title": "National Health Mission — Maternal Health",
+    "description": "The National Health Mission (NHM) under MoHFW provides antenatal care protocols for India including Iron and Folic Acid (IFA) supplementation, calcium supplementation from 14 weeks, anaemia screening, and dietary norms for pregnant women under Janani Shishu Suraksha Karyakarm (JSSK).",
+    "guidanceSnippets": [
+      "NHM recommends a minimum of four antenatal care visits with monitoring of weight, blood pressure, haemoglobin, and foetal growth at each visit.",
+      "Iron and Folic Acid (IFA) supplementation of 100 tablets is provided to pregnant women to combat anaemia, which is associated with low birth weight and maternal mortality.",
+      "Calcium supplementation of 1 g per day is recommended from the 14th week of pregnancy until six months postpartum to support maternal and foetal bone health.",
+      "The Anaemia Mukt Bharat programme targets reduction of anaemia prevalence among pregnant women through dietary counselling, IFA supplementation, and deworming."
+    ]
+  },
+  {
+    "id": "mohfw-maternal-health",
+    "name": "Ministry of Health and Family Welfare — Maternal Health",
+    "url": "https://www.mohfw.gov.in",
+    "category": "antenatal-guidance",
+    "sourceCategory": "safety-warnings",
+    "sourcePriority": 2,
+    "reviewRequired": true,
+    "reviewStatus": "approved",
+    "lastCheckedAt": "2026-06-18T00:00:00.000Z",
+    "lastFetchedAt": "2026-06-18T00:00:00.000Z",
+    "lastReviewedAt": "2026-06-18",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": "",
+    "title": "Ministry of Health and Family Welfare — Government of India",
+    "description": "MoHFW is India's apex health policy authority overseeing maternal health programs including SUMAN (Surakshit Matritva Aashwasan), PMSMA (Pradhan Mantri Surakshit Matritva Abhiyan), and national guidelines for safe motherhood, nutrition, and antenatal care across India.",
+    "guidanceSnippets": [
+      "The SUMAN initiative assures dignified, respectful, and quality healthcare at no cost to eliminate preventable maternal and newborn deaths in India.",
+      "Pradhan Mantri Surakshit Matritva Abhiyan (PMSMA) provides assured, comprehensive, and quality antenatal care to pregnant women on the 9th of every month.",
+      "MoHFW national guidelines emphasise early registration of pregnancy, routine antenatal check-ups, institutional delivery, and postnatal care as pillars of safe motherhood."
+    ]
+  },
+  {
+    "id": "fssai-food-safety-pregnancy",
+    "name": "FSSAI — Food Safety and Standards Authority of India",
+    "url": "https://www.fssai.gov.in",
+    "category": "food-safety",
+    "sourceCategory": "meals-snacks-allergy-safety",
+    "sourcePriority": 3,
+    "reviewRequired": true,
+    "reviewStatus": "approved",
+    "lastCheckedAt": "2026-06-18T00:00:00.000Z",
+    "lastFetchedAt": "2026-06-18T00:00:00.000Z",
+    "lastReviewedAt": "2026-06-18",
+    "lastStatus": 200,
+    "lastModified": "",
+    "etag": "",
+    "title": "Food Safety and Standards Authority of India (FSSAI)",
+    "description": "FSSAI is India's statutory body for food safety and standards under MoHFW. It sets standards for food products, labelling, and safety practices relevant to Indian consumers including guidance on safe food handling, pasteurization, and avoiding high-risk foods during pregnancy.",
+    "guidanceSnippets": [
+      "FSSAI mandates pasteurization standards for milk and dairy products sold in India to eliminate pathogens harmful to pregnant women and young children.",
+      "Food safety regulations under FSSAI specify safe handling, storage, and preparation practices for high-risk foods including eggs, poultry, fish, and ready-to-eat products.",
+      "FSSAI's Eat Right India initiative promotes balanced diets and safe food practices aligned with Indian dietary patterns and cultural food preferences."
+    ]
   }
 ]

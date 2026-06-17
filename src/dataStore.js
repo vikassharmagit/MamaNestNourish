@@ -25,7 +25,12 @@ const TRUSTED_SOURCE_HOSTS = [
   "usda.gov",
   "nal.usda.gov",
   "medlineplus.gov",
-  "niddk.nih.gov"
+  "niddk.nih.gov",
+  // Indian health authorities — added for Indian maternal health context
+  "nin.res.in",    // ICMR-NIN: Dietary Guidelines for Indians 2024, pregnancy RDA
+  "nhm.gov.in",   // National Health Mission: ANC protocols, IFA/calcium supplementation
+  "mohfw.gov.in", // Ministry of Health & Family Welfare: national maternal health policy
+  "fssai.gov.in"  // Food Safety and Standards Authority of India: Indian food safety
 ];
 
 const ALLERGEN_METADATA = {
