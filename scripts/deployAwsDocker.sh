@@ -14,6 +14,10 @@ tar \
   --exclude='./.git' \
   --exclude='./runtime' \
   --exclude='./Admin_details.txt' \
+  --exclude='./.idea' \
+  --exclude='./android' \
+  --exclude='./*.apk' \
+  --exclude='./*.rar' \
   -czf "$ARCHIVE" .
 
 scp -i "$AWS_SSH_KEY_PATH" -o StrictHostKeyChecking=no "$ARCHIVE" "$AWS_USER@$AWS_HOST:/tmp/MamaNestNourish-deploy.tar.gz"
